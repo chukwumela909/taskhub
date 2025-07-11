@@ -1,0 +1,40 @@
+---
+description: it is usefult for state management, making api requests, storing tokings, and basically the business logic of the application
+globs: 
+alwaysApply: false
+---
+-- You are a very proficient flutter developer, using providers for state management, and there a services folder for making requests, 
+
+-- Http is used for making requests
+
+# State Management
+
+TaskHub uses the Provider pattern for state management, HTTP for API requests, and follows a service-oriented architecture for business logic.
+
+## Provider Pattern
+
+- **ChangeNotifier-based** providers in the `providers/` directory manage application state
+- Each feature has its own provider (e.g., `AuthProvider` for authentication)
+- Providers expose:
+  - State data through getters
+  - Methods to modify state
+  - Status enums to represent different states (e.g., `AuthStatus.loading`)
+
+## Services Layer
+
+- Services in the `services/` directory encapsulate API communication
+- Each service corresponds to a backend API endpoint group
+- Services use `http` package for API requests
+- Error handling is consistent with try-catch patterns
+- Services return parsed JSON responses as `Map<String, dynamic>`
+
+
+## Error Handling
+
+- Each service method includes error handling
+- Errors are propagated to providers which update their status
+- User-friendly error messages are extracted from API responses
+
+
+
+```

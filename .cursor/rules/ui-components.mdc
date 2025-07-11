@@ -1,0 +1,42 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# UI Components & Design System
+
+TaskHub follows a consistent design system with reusable components.
+
+## Core UI Components
+
+- **CustomTextFormField** - Standard text input with customizable prefix/suffix icons
+- **PrimaryButton** - Main action button with standardized styling
+- **CustomDropdown** - Styled dropdown menu component
+
+## Color Palette
+
+- **primaryColor** - Purple (`Color(0xff673AB7)`) - Main brand color
+- **black** - Black (`Color(0xff000000)`) - Used for text and key elements
+- **white** - White (`Color(0xffffffff)`) - Background and contrast elements
+- **textformfill** - Light gray (`Color(0xffaeaeae).withOpacity(0.1)`) - Form field backgrounds
+- **greyColor1/2/3** - Various gray shades for different UI elements
+
+## Typography
+
+- Uses the **Geist** font family throughout the app
+- Standard text sizes:
+  - Headers: 28px
+  - Subheaders: 18px
+  - Body text: 16px
+  - Small text: 14px
+
+## Form Pattern
+
+All forms follow a consistent pattern:
+1. Label text with standard styling
+2. SizedBox with height 8
+3. CustomTextFormField with appropriate prefixIcon
+4. SizedBox with height 16 between fields
+
+When implementing UI, always use these existing components and patterns for consistency.
+

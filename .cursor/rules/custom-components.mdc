@@ -1,0 +1,48 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Custom Components
+
+TaskHub includes several custom components for common UI patterns.
+
+## CustomLoader
+
+A custom loading indicator with the following features:
+
+- Purple background matching the app's theme
+- Custom text with default "Please wait..."
+- Optional cancel button
+- Semi-transparent overlay
+- Rotating animation for the loader icon
+
+```dart
+// Basic usage
+CustomLoaderWithAnimation.show(context);
+
+// With custom text
+CustomLoaderWithAnimation.show(
+  context,
+  text: 'Loading data...',
+);
+
+// With cancel button
+CustomLoaderWithAnimation.show(
+  context,
+  text: 'Uploading file...',
+  showCancelButton: true,
+  onCancel: () {
+    Navigator.of(context).pop();
+    // Handle cancel action
+  },
+);
+
+// Hide the loader
+CustomLoaderWithAnimation.hide(context);
+```
+
+The loader displays as a modal dialog with a dark overlay to prevent interaction with the underlying UI. The animation provides visual feedback that a process is ongoing.
+
+Location: `lib/widgets/custom_loader.dart`
+

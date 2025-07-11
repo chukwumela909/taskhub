@@ -1,0 +1,33 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Project Structure
+
+TaskHub is a Flutter mobile application with a clean, modular structure.
+
+## Directory Organization
+
+- **lib/** - Main source code directory
+  - **main.dart** - App entry point, defines `MyApp` widget and app theme
+  - **screens/** - Contains all app screens organized by feature
+    - **auths/** - Authentication screens (login, signup, etc.)
+    - **onboarding/** - Onboarding and splash screens
+    - **user/** - Main user screens after authentication
+  - **theme/** - Theme configuration and shared UI components
+    - **const_value.dart** - Defines colors, custom widgets, and UI constants
+  - **providers/** - State management and business logic
+  - **services/** - API services and data access layer
+
+## Key Conventions
+
+1. **Modular Structure** - Each feature has its own directory with related screens
+2. **Custom Widgets** - Reusable UI components in const_value.dart
+3. **Standard Styling** - Common colors and theme values in const_value.dart
+4. **Provider Pattern** - Uses Provider package for state management
+
+## Navigation Flow
+
+The app starts with Splash screen -> Onboarding -> Authentication -> Main User screens
+

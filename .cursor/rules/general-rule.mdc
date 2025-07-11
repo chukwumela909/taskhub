@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- **Strict Adherence to Focus Area & Scope:** Confine all modifications and generated code strictly to the task's stated focus area or the specific file/widget being worked on. **Do not make any changes or additions outside of this defined scope** unless it is **demonstrably and absolutely necessary** for the core task to function correctly (e.g., adding a required import statement at the top of the file being modified, or adding a dependency in `pubspec.yaml` *only* if a new, essential package is introduced by the task). **Avoid any unsolicited refactoring, formatting, or code additions outside the direct scope of the request.**
+
+- **Comprehensive Redundancy Check Before Adding:** Before adding any new element to the project – including but not limited to: new packages in `pubspec.yaml`, new files, new directories, new classes, new widgets, new functions, or even defining new variables/constants that seem like duplicates – **always perform a thorough check** to verify if an equivalent already exists in the codebase. **Only add a resource if it is genuinely new and required by the task.** This prevents redundancy, reduces merge conflicts, and keeps the codebase clean.
+- **Respect and Preserve User Modifications:** **Absolutely never** revert, overwrite, or alter any code that I (the user) have previously written or modified manually. My manual changes are definitive and reflect my explicit intentions or preferences for the code. If a new task requires a change in an area I have previously modified, and the required change conflicts with my existing code, **report the conflict** or request explicit instruction rather than proceeding to overwrite my work.
+
+- **Create more smaller files instead of fewer larger files:**. Always, and always priortize making smaller files, with clear use cases, than trying to put plenty things in one file, This is to say i prefer a modular structure

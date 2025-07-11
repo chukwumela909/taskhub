@@ -1,0 +1,315 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+- **user(register)** :
+
+ ##Endpoint : "https://taskhub-server-yw24.onrender.com/api/auth/user-register"
+ 
+
+ ##Payload:  {
+    "fullName" : "Wisdom Amirize",
+    "emailAddress" : "amirizew@gmail.com",
+    "phoneNumber" : "08145548609",
+    "country"  : "Nigeria",
+    "residentState" : "Rivers state",
+    "dateOfBirth" : "2000-08-15",
+    "address" : "14 webilor street, elelenwo, portharcourt",
+    "password" : "Golda909"
+}
+
+
+##Response(error, statuscode: 400):  {
+    "status": "error",
+    "message": "error message"
+}
+
+##Response(success, statuscode: 200):  {
+    "status": "success",
+    "message": "User registered successfully"
+}
+
+- **user(login)** :
+
+ ##Endpoint : "https://taskhub-server-yw24.onrender.com/api/auth/user-login"
+ 
+
+ ##Payload:  {
+    "emailAddress" : "amirizew@gmail.com",
+    "password"   : "Golda909"
+}
+
+
+##Response(error, statuscode: 400):  {
+    "status": "error",
+    "message": "error message"
+}
+
+##Response(success, statuscode: 200): {
+    "status": "success",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MmVlYmY3YjY2MGFkZmYyNzIxYjk1MSIsImlhdCI6MTc0NzkwNjk4NiwiZXhwIjoxNzUwNDk4OTg2fQ.CNVFQ4Rwz12SYZzpA5Ci4nAnIG9_TFSKEVEyUIgnSXs"
+}
+
+##Note : store the token gotten from the response in a shared preference
+
+
+
+
+- **user(fetch-user-data)** :
+
+ ##Endpoint : "https://taskhub-server-yw24.onrender.com/api/auth/user"
+
+ ##Headers :  {
+    "Authorization" : "Bearer $token"
+ }
+ 
+
+ ##Payload:  "No payload, it is a get request"
+
+
+##Response(error, statuscode: 400):  {
+    "status": "error",
+    "message": "error message"
+}
+
+##Response(success, statuscode: 200): {
+    "status": "success",
+    "message": "User fetched successfully",
+    "user": {
+        "_id": "68374df088e730f325971c7e",
+        "fullName": "Amirize wisdom",
+        "emailAddress": "amirizew@gmail.com",
+        "phoneNumber": "08145548609",
+        "dateOfBirth": "2007-06-02T00:00:00.000Z",
+        "profilePicture": "",
+        "country": "Nigeria",
+        "residentState": "Rivers",
+        "address": "14 webilor street",
+        "password": "$2b$10$Lo1n75gJsiFZd.iVbhGp6.HQ4Nuh4qkNP8cJ6kU0wpxwDR7Q0EBPC",
+        "wallet": 0,
+        "createdAt": "2025-05-28T17:54:56.134Z",
+        "__v": 0
+    }
+}
+
+##Note : store the token gotten from the response in a shared preference
+
+
+
+- **user(Post a taask)** :
+
+ ##Endpoint : "https://taskhub-server-yw24.onrender.com/api/tasks"
+ 
+
+ ##Payload:  {
+  "title": "Fix leaking bathroom faucet",
+  "description": "The bathroom sink faucet is constantly dripping and needs to be fixed or replaced. It's wasting water and making noise at night.",
+  "category": "Plumbing",
+  "tags": ["urgent", "indoor", "bathroom"],
+  "images": [
+    {
+      "url": "https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/taskhub/faucet1.jpg"
+    },
+    {
+      "url": "https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/taskhub/faucet2.jpg"
+    }
+  ],
+  "location": {
+    "address": "123 Main Street, Apt 4B",
+    "state": "California",
+    "country": "USA",
+    "latitude": 37.7749,
+    "longitude": -122.4194
+  },
+  "budget": 80,
+  "isBiddingEnabled": true,
+  "deadline": "2023-08-15T18:00:00Z"
+} 
+
+
+##Response(error, statuscode: 400):  {
+    "status": "error",
+    "message": " e.g Invalid deadline",
+    "details": "e.g Deadline must be a valid future date"
+}
+
+
+##Response(success, statuscode: 200):  {
+    "status": "success",
+    "message": "Task created successfully",
+    "task": {
+        "title": "Fix leaking bathroom faucet",
+        "description": "The bathroom sink faucet is constantly dripping and needs to be fixed or replaced. It's wasting water and making noise at night.",
+        "category": "Plumbing",
+        "tags": [
+            "urgent",
+            "indoor",
+            "bathroom"
+        ],
+        "images": [
+            {
+                "url": "https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/taskhub/faucet1.jpg",
+                "_id": "684d4d29d2b881eb25bb2e5e"
+            },
+            {
+                "url": "https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/taskhub/faucet2.jpg",
+                "_id": "684d4d29d2b881eb25bb2e5f"
+            }
+        ],
+        "location": {
+            "address": "123 Main Street, Apt 4B",
+            "state": "California",
+            "country": "USA",
+            "latitude": 37.7749,
+            "longitude": -122.4194
+        },
+        "budget": 80,
+        "isBiddingEnabled": true,
+        "deadline": "2025-08-15T18:00:00.000Z",
+        "status": "open",
+        "user": "68374df088e730f325971c7e",
+        "_id": "684d4d29d2b881eb25bb2e5d",
+        "createdAt": "2025-06-14T10:21:29.828Z",
+        "updatedAt": "2025-06-14T10:21:29.828Z",
+        "__v": 0
+    }
+}
+
+
+
+
+
+
+
+
+
+- **user(fetch-user-tasks)** :
+
+ ##Endpoint : "https://taskhub-server-yw24.onrender.com/api/tasks/user/tasks"
+
+ ##Headers :  {
+    "Authorization" : "Bearer $token"
+ }
+ 
+
+ ##Payload:  "No payload, it is a get request"
+
+
+##Response(error, statuscode: 400):  {
+    "status": "error",
+    "message": "error message"
+}
+
+##if there are no tasks
+##Response(success, statuscode: 200):  {
+    "status": "success",
+    "count": 0,
+    "totalPages": 0,
+    "currentPage": 1,
+    "tasks": []
+}
+
+##Response(success, statuscode: 200): {
+    "status": "success",
+    "count": 1,
+    "totalPages": 1,
+    "currentPage": 1,
+    "tasks": [
+        {
+            "location": {
+                "latitude": 4.9132552,
+                "longitude": 6.9118525
+            },
+            "_id": "684ebf5f5985254da6e1dd28",
+            "title": "Pick groceries up",
+            "description": "I want you to pick up groceries for me \nfrom Timeless supermarket.",
+            "category": "Cleaning Services",
+            "tags": [
+                "errand, groceries"
+            ],
+            "images": [
+                {
+                    "url": "https://res.cloudinary.com/daf6mdwkh/image/upload/v1749991247/taskhub/images/rgcft8mndukrfzixkkr6.heic",
+                    "_id": "684ebf5f5985254da6e1dd29"
+                },
+                {
+                    "url": "https://res.cloudinary.com/daf6mdwkh/image/upload/v1749991258/taskhub/images/qr4ki1ht0iqw058bjptc.heic",
+                    "_id": "684ebf5f5985254da6e1dd2a"
+                }
+            ],
+            "budget": 350,
+            "isBiddingEnabled": true,
+            "deadline": "2025-06-24T00:00:00.000Z",
+            "status": "open",
+            "user": "68374df088e730f325971c7e",
+            "createdAt": "2025-06-15T12:41:03.575Z",
+            "updatedAt": "2025-06-15T12:41:03.575Z",
+            "__v": 0
+        }
+    ]
+}
+
+
+
+- **user(fetch-task)** :
+
+ ##Endpoint : "https://taskhub-server-yw24.onrender.com/api/tasks/684ecef65985254da6e1de25"
+
+ ##Headers :  {
+    "Authorization" : "Bearer $token"
+ }
+ 
+
+ ##Payload:  "No payload, it is a get request"
+
+
+##Response(error, statuscode: 400):  {
+    "status": "error",
+    "message": "error message"
+}
+
+
+##Response(success, statuscode: 200): {
+    "status": "success",
+    "task": {
+        "location": {
+            "latitude": 4.9132552,
+            "longitude": 6.9118529
+        },
+        "_id": "684ecef65985254da6e1de25",
+        "title": "jdnud",
+        "description": "hshwn",
+        "category": "Web Development",
+        "tags": [
+            "errand"
+        ],
+        "images": [
+            {
+                "url": "https://res.cloudinary.com/daf6mdwkh/image/upload/v1749995249/taskhub/images/b0dpzzr6okulgznppnzy.jpg",
+                "_id": "684ecef65985254da6e1de26"
+            }
+        ],
+        "budget": 67,
+        "isBiddingEnabled": true,
+        "deadline": "2025-06-25T00:00:00.000Z",
+        "status": "open",
+        "user": {
+            "_id": "684ece075985254da6e1ddc8",
+            "fullName": "Richfield ojukwu",
+            "profilePicture": ""
+        },
+        "createdAt": "2025-06-15T13:47:34.855Z",
+        "updatedAt": "2025-06-15T13:47:34.855Z",
+        "__v": 0
+    }
+}
+
+
+
+
+
+
+
+
+

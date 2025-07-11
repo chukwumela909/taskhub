@@ -1,0 +1,41 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Authentication Flow
+
+TaskHub uses a multi-step signup process with a clean, guided user experience.
+
+## Signup Process
+
+The signup process is divided into multiple screens:
+
+1. **SignUpUser** - First step collecting basic user information
+   - Full name
+   - Email address
+   - Phone number
+   - Date of birth
+   
+2. **SignupUser2** - Second step collecting additional information
+   - Password creation and confirmation
+   - Security questions or additional details
+   
+3. **SignupUser3** - Final step for completing profile
+   - Profile information and preferences
+
+## Form Validation
+
+- Form validation should be handled at each step before proceeding
+- Error messages should be displayed inline with input fields
+- The "Proceed" button navigates to the next screen in the flow
+
+## UI Indicators
+
+- Progress indicators (1/3, 2/3, 3/3) are shown at the top of each screen
+- SVG icons are used as visual cues for input fields
+
+## Authentication State
+
+Authentication state should be managed through the Provider pattern with secure storage for tokens.
+
