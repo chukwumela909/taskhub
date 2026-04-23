@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:taskhub/screens/auths/signUpTasker/signup_tasker.dart';
 import 'package:taskhub/screens/auths/signUpUser/signup_user.dart';
 import 'package:taskhub/screens/auths/sign_in_tasker.dart';
@@ -12,6 +13,28 @@ class StarterPage extends StatefulWidget {
 
   @override
   _StarterPageState createState() => _StarterPageState();
+}
+
+// Custom slide transition route
+Route _createSlideRoute(Widget page) {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => page,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0);
+      const end = Offset.zero;
+      const curve = Curves.easeInOut; // Changed for a more dynamic feel
+
+      var tween = Tween(begin: begin, end: end).chain(
+        CurveTween(curve: curve),
+      );
+
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+    transitionDuration: const Duration(milliseconds: 500), // Slightly longer
+  );
 }
 
 class _StarterPageState extends State<StarterPage> {
@@ -27,31 +50,29 @@ class _StarterPageState extends State<StarterPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // -- Logo / Header Section --
-              const SizedBox(height: 30),
+              const SizedBox(height: 60),
               _buildLogo(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 15),
 
               // -- Title: "Join us Today!" --
               Align(
-                alignment: Alignment.topLeft,
+                alignment: Alignment.center, 
                 child: RichText(
                   text: TextSpan(
                     text: 'Join us ',
-                    style: const TextStyle(
+                    style:  GoogleFonts.bricolageGrotesque(
                       fontSize: 30,
-                      fontFamily: 'Geist',
                       fontWeight: FontWeight.w800,
                       color: Colors.black,
                     ),
                     children: [
                       TextSpan(
                         text: 'Today!',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontFamily: 'Geist',
-                          fontWeight: FontWeight.w800,
-                          color: primaryColor,
-                        ),
+                            style: GoogleFonts.bricolageGrotesque(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w800,
+                              color: primaryColor,
+                            ),
                       ),
                     ],
                   ),
@@ -62,22 +83,23 @@ class _StarterPageState extends State<StarterPage> {
               // -- Subtitle --
               const Text(
                 "Be part of our platform today, see what's taskable",
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
                   fontFamily: 'Geist',
                   color: Colors.black54,
+                  
                 ),
               ),
               const SizedBox(height: 32),
 
               // -- "Sign up as" --
-              Align(
+               Align(
                 alignment: Alignment.topLeft,
-                child: const Text(
+                child: Text(
                   "Sign up as",
-                  style: TextStyle(
+                  style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
                     fontWeight: FontWeight.w600,
                     color: Color(0xff606060),
                   ),
@@ -108,12 +130,12 @@ class _StarterPageState extends State<StarterPage> {
                     if (_selectedRole == 'User') {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SignUpUser()),
+                        _createSlideRoute(SignUpUser()),
                       );
                     } else {
                        Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SignUpTasker()),
+                        _createSlideRoute(SignUpTasker()),
                       );
                     }
                   }),
@@ -130,11 +152,10 @@ class _StarterPageState extends State<StarterPage> {
                   children: [
                     Text(
                       "Have an account? ",
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: 'Geist',
-                          color: black.withOpacity(0.7),
-                          fontWeight: FontWeight.w600),
+                          style: GoogleFonts.bricolageGrotesque(
+                              fontSize: 18,
+                              color: black.withOpacity(0.7),
+                            fontWeight: FontWeight.w400),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -147,10 +168,9 @@ class _StarterPageState extends State<StarterPage> {
                       },
                       child: Text(
                         "Login",
-                        style: TextStyle(
+                        style: GoogleFonts.bricolageGrotesque(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          fontFamily: 'Geist',
                           color: primaryColor,
                         ),
                       ),
@@ -168,7 +188,7 @@ class _StarterPageState extends State<StarterPage> {
   /// Logo widget at the top of the screen.
   /// Replace the placeholder with your actual asset or network image.
   Widget _buildLogo() {
-    return Image.asset('assets/icons/taskhub-dark.png', width: 120);
+    return Image.asset('assets/icons/taskhub-dark.png', width: 80);
   }
 
   /// Builds the "User" / "Taskers" role selection buttons.
@@ -221,37 +241,42 @@ class AttentionBox extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: boxColor,
-        border: Border.all(
-          color: Color.fromARGB(55, 126, 100, 16),
-          width: 1,
+        border: Border(
+          left: BorderSide(
+            color: Color.fromARGB(55, 126, 100, 16),
+            width: 3,
+          ),
         ),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start  ,
         children: [
-          SvgPicture.asset('assets/icons/warning-icon.svg'),
+          Icon(Icons.warning_rounded, color: attentionWarning, size: 20),
           SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Attention",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: attentionWarning,
-                    fontSize: 16,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      "Attention",
+                        style: GoogleFonts.bricolageGrotesque(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: attentionWarning,
+                        ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 4),
                 Text(
-                  "Make sure you are eligible for self-employment or freelance work before offering services.",
-                  style: TextStyle(
+                    "For Taskers: Make sure you register with data that matches your official documents.",
+                  style: GoogleFonts.bricolageGrotesque(
                       fontSize: 14,
                       color: attentionWarning.withOpacity(0.6),
-                      fontFamily: 'Geist',
-                      fontWeight: FontWeight.w600),
+                      fontWeight: FontWeight.w500),
                 ),
               ],
             ),

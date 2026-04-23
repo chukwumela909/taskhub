@@ -5,11 +5,11 @@ import 'package:provider/provider.dart';
 import 'package:taskhub/providers/auth_provider.dart';
 import 'package:taskhub/providers/task_provider.dart';
 import 'package:taskhub/screens/tasker/task_details.dart';
+import 'package:taskhub/screens/tasker/identity_verification.dart';
 import 'package:taskhub/screens/tasker/history.dart';
 import 'package:taskhub/services/background_location_service.dart';
 import 'package:taskhub/theme/const_value.dart';
 import 'package:taskhub/widgets/profile_picture_widget.dart';
-import 'package:taskhub/widgets/location_status_widget.dart';
 import 'package:intl/intl.dart';
 
 class TaskerDashboardScreen extends StatefulWidget {
@@ -87,7 +87,8 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
       authProvider.fetchTaskerData();
     }
     
-    taskProvider.fetchUserTasks(showLoading: showLoading).then((_) {
+    // Use tasker feed instead of user tasks for taskers
+    taskProvider.fetchTaskerFeed(showLoading: showLoading).then((_) {
       setState(() {
         _lastRefreshed = DateTime.now();
       });
@@ -96,7 +97,7 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
 
   Future<void> _handleRefresh() async {
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-    await taskProvider.fetchUserTasks(showLoading: false);
+    await taskProvider.fetchTaskerFeed(showLoading: false);
     setState(() {
       _lastRefreshed = DateTime.now();
     });
@@ -112,7 +113,14 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
     final authProvider = Provider.of<AuthProvider>(context);
     final taskProvider = Provider.of<TaskProvider>(context);
     final userData = authProvider.userData;
-    final availableTasks = taskProvider.userTasks;
+    final allTasks = taskProvider.taskerFeedTasks; // Use tasker feed instead of user tasks
+    
+    // Filter to only show tasks that the user has applied for (canApply is false)
+    final availableTasks = allTasks.where((task) {
+      final applicationInfo = task['applicationInfo'] as Map<String, dynamic>?;
+      final canApply = applicationInfo?['canApply'] ?? true;
+      return !canApply; // Only show tasks where canApply is false (already applied)
+    }).toList();
     
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A1A),
@@ -129,25 +137,11 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 16),
-                        _buildTaskerProfileSection(userData),
                         const SizedBox(height: 12),
+                        _buildTaskerProfileSection(userData),
+                        const SizedBox(height: 20),
                         
-                        // Location status widget
-                        const Center(child: LocationStatusWidget()),
-                        const SizedBox(height: 8),
-                        
-                        Center(
-                          child: Text(
-                            _getLastRefreshedText(),
-                            style: TextStyle(
-                              color: Colors.grey.shade400,
-                              fontSize: 12,
-                              fontFamily: 'Geist',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
+                        // Removed location status chip and last-updated timestamp
 
                         if (taskProvider.status == TaskStatus.loading)
                           const Center(
@@ -160,13 +154,11 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
                           _buildMainTaskCard(availableTasks[0])
                         else
                           _buildEmptyTasksCard(),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
 
                         if (availableTasks.length > 1)
-                          _buildUpcomingTaskCard(availableTasks[1])
-                        else if (availableTasks.isNotEmpty)
-                          _buildNoMoreTasksCard(),
-                        const SizedBox(height: 24),
+                          _buildUpcomingTaskCard(availableTasks[1]),
+                        const SizedBox(height: 20),
 
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -204,7 +196,7 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
                             ),
                           ],
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 24),
 
                         if (taskProvider.status == TaskStatus.loading)
                           const Center(
@@ -239,6 +231,7 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
   Widget _buildTaskerProfileSection(Map<String, dynamic>? userData) {
     final user = userData != null ? userData['user'] : null;
     final profilePictureUrl = user?['profilePicture'] as String?;
+  final bool isVerified = user?['verifyIdentity'] == true;
     
     String displayName = 'Loading...';
     if (user != null) {
@@ -272,15 +265,65 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
                     letterSpacing: -0.5,
                   ),
                 ),
-                Text(
-                  'Tasker',
-                  style: TextStyle(
-                    color: taskerPrimaryColor,
-                    fontSize: 14,
-                    fontFamily: 'Geist',
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.5,
-                  ),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      'Tasker',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: 14,
+                        fontFamily: 'Geist',
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: -0.5,
+                        height: 1.0,
+                      ),
+                    ),
+                    if (!isVerified)
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const TaskerIdentityVerificationScreen(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.18),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: Colors.orange.withOpacity(0.4)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.verified_user_outlined, size: 14, color: Colors.orange),
+                                SizedBox(width: 5),
+                                Text(
+                                  'Identity not verified',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.orange,
+                                    fontFamily: 'Geist',
+                                    letterSpacing: -0.2,
+                                    height: 1.0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
@@ -288,19 +331,19 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
         ),
         Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2A2A2A),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: SvgPicture.asset(
-                'assets/icons/notification.svg',
-                width: 24,
-                height: 24,
-               color: taskerPrimaryColor,
-              ),
-            ),
+            // Container(
+            //   padding: const EdgeInsets.all(8),
+            //   decoration: BoxDecoration(
+            //     color: const Color(0xFF2A2A2A),
+            //     borderRadius: BorderRadius.circular(12),
+            //   ),
+            //   child: SvgPicture.asset(
+            //     'assets/icons/notification.svg',
+            //     width: 24,
+            //     height: 24,
+            //    color: taskerPrimaryColor,
+            //   ),
+            // ),
             // const SizedBox(width: 8),
             // GestureDetector(
             //   onTap: () {
@@ -344,7 +387,7 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text(
-            'No Available Tasks',
+            'No Tasks Available',
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -354,7 +397,7 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
           ),
           const SizedBox(height: 8),
           Text(
-            'There are no available tasks at the moment.\nCheck back later for new opportunities.',
+            'No tasks matching your categories are available right now.\nCheck back later for new opportunities.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.grey.shade400,
@@ -420,42 +463,15 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
     );
   }
 
-  Widget _buildNoMoreTasksCard() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2A2A2A),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade800),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'All Caught Up!',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontFamily: 'Geist',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'You\'ve seen all available tasks.\nNew tasks will appear here.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.grey.shade400,
-              fontSize: 14,
-              fontFamily: 'Geist',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Removed "All Caught Up!" card.
 
   Widget _buildMainTaskCard(Map<String, dynamic> task) {
+    final applicationInfo = task['applicationInfo'] as Map<String, dynamic>?;
+    final taskerBidInfo = task['taskerBidInfo'] as Map<String, dynamic>?;
+    final isBiddingEnabled = task['isBiddingEnabled'] ?? false;
+    final canApply = applicationInfo?['canApply'] ?? true;
+    final applicationLabel = applicationInfo?['applicationLabel'] ?? 'Apply for Task';
+    
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -484,14 +500,37 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Available Task',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontFamily: 'Geist',
-                    fontWeight: FontWeight.w600,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      isBiddingEnabled ? 'Bidding Task' : 'Fixed Price Task',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontFamily: 'Geist',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (taskerBidInfo?['hasBid'] == true) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'Applied',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontFamily: 'Geist',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -535,29 +574,31 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
             const SizedBox(height: 16),
             Row(
               children: [
-                Icon(
-                  Icons.location_on,
-                  color: Colors.white.withOpacity(0.8),
-                  size: 16,
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    task['location'] ?? 'Location not specified',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
-                      fontSize: 12,
-                      fontFamily: 'Geist',
-                    ),
-                  ),
-                ),
-                const Text(
-                  'View Details',
+                Expanded(child: Container()),
+                // Icon(
+                //   Icons.location_on,
+                //   color: Colors.white.withOpacity(0.8),
+                //   size: 16,
+                // ),
+                // const SizedBox(width: 4),
+                // Expanded(
+                //   child: Text(
+                //     task['location']?['address'] ?? 'Location not specified',
+                //     style: TextStyle(
+                //       color: Colors.white.withOpacity(0.8),
+                //       fontSize: 12,
+                //       fontFamily: 'Geist',
+                //     ),
+                //   ),
+                // ),
+                Text(
+                  canApply ? applicationLabel : 'View Details',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 12,
                     fontFamily: 'Geist',
                     fontWeight: FontWeight.w600,
+                    decoration: canApply ? null : TextDecoration.lineThrough,
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -575,6 +616,9 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
   }
 
   Widget _buildUpcomingTaskCard(Map<String, dynamic> task) {
+    final isBiddingEnabled = task['isBiddingEnabled'] ?? false;
+    final taskerBidInfo = task['taskerBidInfo'] as Map<String, dynamic>?;
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -588,14 +632,37 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Next Available',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontFamily: 'Geist',
-                  fontWeight: FontWeight.w600,
-                ),
+              Row(
+                children: [
+                  Text(
+                    isBiddingEnabled ? 'Bidding' : 'Fixed Price',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontFamily: 'Geist',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (taskerBidInfo?['hasBid'] == true) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'Applied',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontSize: 10,
+                          fontFamily: 'Geist',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
               Text(
                 '₦${task['budget'] ?? '0'}',
@@ -635,6 +702,11 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
   }
 
   Widget _buildActivityItemFromTask(Map<String, dynamic> task) {
+    final isBiddingEnabled = task['isBiddingEnabled'] ?? false;
+    final taskerBidInfo = task['taskerBidInfo'] as Map<String, dynamic>?;
+    final applicationInfo = task['applicationInfo'] as Map<String, dynamic>?;
+    final canApply = applicationInfo?['canApply'] ?? true;
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -652,7 +724,7 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
-              Icons.task_alt,
+              isBiddingEnabled ? Icons.gavel : Icons.task_alt,
               color: taskerPrimaryColor,
               size: 20,
             ),
@@ -672,9 +744,17 @@ class _TaskerDashboardScreenState extends State<TaskerDashboardScreen> with Widg
                   ),
                 ),
                 Text(
-                  'Available for application',
+                  taskerBidInfo?['hasBid'] == true 
+                      ? 'Already applied' 
+                      : canApply 
+                          ? (isBiddingEnabled ? 'Available for bidding' : 'Available for application')
+                          : 'Not available',
                   style: TextStyle(
-                    color: Colors.grey.shade400,
+                    color: taskerBidInfo?['hasBid'] == true 
+                        ? Colors.orange.shade400
+                        : canApply 
+                            ? Colors.grey.shade400
+                            : Colors.red.shade400,
                     fontSize: 12,
                     fontFamily: 'Geist',
                   ),

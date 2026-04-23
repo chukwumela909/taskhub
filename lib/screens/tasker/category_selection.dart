@@ -5,13 +5,16 @@ import 'package:taskhub/providers/auth_provider.dart';
 import 'package:taskhub/services/auth_service.dart';
 import 'package:taskhub/screens/tasker/home.dart';
 import 'package:taskhub/theme/const_value.dart';
+import 'package:taskhub/services/preferences_service.dart';
 
 class CategorySelectionScreen extends StatefulWidget {
   final bool isFromAuth; // true if coming from auth flow, false if from profile
+  final String? token; // optional explicit token from login flow
   
   const CategorySelectionScreen({
     super.key,
     this.isFromAuth = false,
+    this.token,
   });
 
   @override
@@ -107,15 +110,31 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
     });
 
     try {
+  // Prefer token passed via constructor (from login), then in-memory provider; rehydrate if missing
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  String? effectiveToken = widget.token ?? authProvider.token;
+      if (effectiveToken == null || effectiveToken.isEmpty) {
+        // Attempt to reload auth state from secure storage
+        await authProvider.checkAuthenticationStatus();
+        effectiveToken = authProvider.token;
+      }
+      if (effectiveToken == null || effectiveToken.isEmpty) {
+        // Final fallback to direct storage read
+        effectiveToken = await _authService.getToken();
+      }
+
       await _authService.updateTaskerCategories(
         categories: _selectedCategoryIds.toList(),
+        token: effectiveToken,
       );
 
-      // Refresh user data to get updated categories
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  // Refresh user data to get updated categories
+      
       await authProvider.fetchTaskerData();
 
       if (widget.isFromAuth) {
+        // Mark first-time categories completed
+        await PreferencesService.markTaskerCategoriesCompleted();
         // Navigate to tasker home after successful category selection
         Navigator.pushAndRemoveUntil(
           context,
@@ -128,7 +147,10 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        final msg = e.toString();
+        _errorMessage = msg.contains('Authentication token not found')
+            ? 'Your session looks expired. Please log in again and try selecting categories.'
+            : msg;
         _isSaving = false;
       });
     }

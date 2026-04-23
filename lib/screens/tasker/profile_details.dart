@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:taskhub/providers/auth_provider.dart';
-import 'package:taskhub/services/image_service.dart';
 import 'package:taskhub/theme/const_value.dart';
+import 'package:taskhub/services/image_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:taskhub/widgets/profile_picture_widget.dart';
+import 'package:taskhub/screens/tasker/identity_verification.dart';
 
 class TaskerProfileDetailsScreen extends StatefulWidget {
   const TaskerProfileDetailsScreen({super.key});
@@ -31,137 +33,7 @@ class _TaskerProfileDetailsScreenState extends State<TaskerProfileDetailsScreen>
     });
   }
 
-  Future<void> _updateProfilePicture() async {
-    if (!mounted) return;
-    
-    try {
-      final ImageSource? source = await showDialog<ImageSource>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: const Color(0xFF2A2A2A),
-            title: const Text(
-              'Select Image Source',
-              style: TextStyle(
-                fontFamily: 'Geist', 
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.camera_alt, color: Colors.white),
-                  title: const Text(
-                    'Camera', 
-                    style: TextStyle(fontFamily: 'Geist', color: Colors.white),
-                  ),
-                  onTap: () => Navigator.pop(context, ImageSource.camera),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.photo_library, color: Colors.white),
-                  title: const Text(
-                    'Gallery', 
-                    style: TextStyle(fontFamily: 'Geist', color: Colors.white),
-                  ),
-                  onTap: () => Navigator.pop(context, ImageSource.gallery),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-
-      if (source == null || !mounted) return;
-
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 85,
-      );
-
-      if (image == null || !mounted) return;
-
-      setState(() {
-        _isUpdatingProfilePicture = true;
-      });
-
-      try {
-        final file = File(image.path);
-        final imageUrls = await _imageService.uploadImages([file]);
-        
-        if (imageUrls.isNotEmpty && mounted) {
-          final profilePictureUrl = imageUrls.first;
-          
-          final authProvider = Provider.of<AuthProvider>(context, listen: false);
-          final success = await authProvider.updateProfilePicture(profilePictureUrl);
-          
-          if (mounted) {
-            if (success) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Profile picture updated successfully!',
-                    style: TextStyle(fontFamily: 'Geist'),
-                  ),
-                  backgroundColor: Colors.green,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    authProvider.errorMessage ?? 'Failed to update profile picture',
-                    style: const TextStyle(fontFamily: 'Geist'),
-                  ),
-                  backgroundColor: Colors.red,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            }
-          }
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Error uploading image: ${e.toString()}',
-                style: const TextStyle(fontFamily: 'Geist'),
-              ),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      
-        if (mounted) {
-          setState(() {
-            _isUpdatingProfilePicture = false;
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isUpdatingProfilePicture = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Error selecting image: ${e.toString()}',
-              style: const TextStyle(fontFamily: 'Geist'),
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
-  }
+  // Removed image update flow since the camera overlay was removed from the UI.
 
   @override
   Widget build(BuildContext context) {
@@ -202,6 +74,58 @@ class _TaskerProfileDetailsScreenState extends State<TaskerProfileDetailsScreen>
             },
           ),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Edit profile',
+            icon: _isUpdatingProfilePicture
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Icon(Icons.edit_outlined, color: Colors.white),
+            onPressed: _isUpdatingProfilePicture
+                ? null
+                : () async {
+                    await showModalBottomSheet(
+                      context: context,
+                      backgroundColor: const Color(0xFF2A2A2A),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                      ),
+                      builder: (ctx) {
+                        return SafeArea(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.camera_alt_outlined, color: Colors.white),
+                                title: const Text(
+                                  'Change profile photo',
+                                  style: TextStyle(color: Colors.white, fontFamily: 'Geist'),
+                                ),
+                                onTap: () async {
+                                  Navigator.of(ctx).pop();
+                                  await _updateProfilePicture();
+                                },
+                              ),
+                              const Divider(height: 1, color: Colors.white24),
+                              ListTile(
+                                leading: const Icon(Icons.close, color: Colors.white),
+                                title: const Text('Cancel', style: TextStyle(color: Colors.white, fontFamily: 'Geist')),
+                                onTap: () => Navigator.of(ctx).pop(),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+          ),
+        ],
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Color(0xFF1A1A1A),
           statusBarIconBrightness: Brightness.light,
@@ -229,10 +153,123 @@ class _TaskerProfileDetailsScreenState extends State<TaskerProfileDetailsScreen>
     );
   }
 
+  Future<void> _updateProfilePicture() async {
+    if (!mounted) return;
+    try {
+      final ImageSource? source = await showDialog<ImageSource>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF2A2A2A),
+            title: const Text(
+              'Select Image Source',
+              style: TextStyle(
+                fontFamily: 'Geist',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt, color: Colors.white),
+                  title: const Text('Camera', style: TextStyle(fontFamily: 'Geist', color: Colors.white)),
+                  onTap: () => Navigator.pop(context, ImageSource.camera),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library, color: Colors.white),
+                  title: const Text('Gallery', style: TextStyle(fontFamily: 'Geist', color: Colors.white)),
+                  onTap: () => Navigator.pop(context, ImageSource.gallery),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+
+      if (source == null || !mounted) return;
+
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+
+      if (image == null || !mounted) return;
+
+      setState(() {
+        _isUpdatingProfilePicture = true;
+      });
+
+      try {
+        final file = File(image.path);
+        final imageUrls = await _imageService.uploadImages([file]);
+
+        if (imageUrls.isNotEmpty && mounted) {
+          final profilePictureUrl = imageUrls.first;
+
+          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+          final success = await authProvider.updateProfilePicture(profilePictureUrl);
+
+          if (!mounted) return;
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Profile picture updated successfully!', style: TextStyle(fontFamily: 'Geist')),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  authProvider.errorMessage ?? 'Failed to update profile picture',
+                  style: const TextStyle(fontFamily: 'Geist'),
+                ),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error uploading image: ${e.toString()}', style: const TextStyle(fontFamily: 'Geist')),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isUpdatingProfilePicture = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error selecting image: ${e.toString()}', style: const TextStyle(fontFamily: 'Geist')),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   Widget _buildProfileHeader(Map<String, dynamic>? user) {
     final profilePictureUrl = user?['profilePicture'] as String?;
     
     String displayName = 'Loading...';
+  final bool isVerified = user?['verifyIdentity'] == true;
     if (user != null) {
       if (user['firstName'] != null && user['lastName'] != null) {
         displayName = '${user['firstName']} ${user['lastName']}';
@@ -241,119 +278,102 @@ class _TaskerProfileDetailsScreenState extends State<TaskerProfileDetailsScreen>
       }
     }
     
-    return Column(
-      children: [
-        Stack(
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white,
-                  width: 2,
-                ),
+    return Center(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              ProfilePictureWidget(
+                profilePictureUrl: profilePictureUrl,
+                displayName: displayName,
+                radius: 50,
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: _isUpdatingProfilePicture
-                    ? Container(
-                        color: Colors.grey[800],
-                        child: const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        ),
-                      )
-                    : profilePictureUrl != null && profilePictureUrl.isNotEmpty
-                        ? Image.network(
-                            profilePictureUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                'assets/images/profile-picture.png',
-                                fit: BoxFit.cover,
-                              );
-                            },
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Container(
-                                color: Colors.grey[800],
-                                child: const Center(
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                ),
-                              );
-                            },
-                          )
-                        : Image.asset(
-                            'assets/images/profile-picture.png',
-                            fit: BoxFit.cover,
-                          ),
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: taskerPrimaryColor,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 2,
-                  ),
-                ),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: _isUpdatingProfilePicture
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                  onPressed: _isUpdatingProfilePicture ? null : _updateProfilePicture,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Text(
-          displayName,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
-            fontFamily: 'Geist',
+            ],
           ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: taskerPrimaryColor.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            'Taskhub Tasker',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: taskerPrimaryColor,
+          const SizedBox(height: 16),
+          Text(
+            displayName,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
               fontFamily: 'Geist',
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: taskerPrimaryColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Taskhub Tasker',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: taskerPrimaryColor,
+                    fontFamily: 'Geist',
+                  ),
+                ),
+              ),
+              if (!isVerified)
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const TaskerIdentityVerificationScreen(),
+                        ),
+                      ).then((result) {
+                        if (result == true && mounted) {
+                          Provider.of<AuthProvider>(context, listen: false).fetchTaskerData();
+                        }
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.orange.withOpacity(0.4)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.verified_user_outlined, size: 14, color: Colors.orange),
+                          SizedBox(width: 6),
+                          Text(
+                            'Identity not verified',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.orange,
+                              fontFamily: 'Geist',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

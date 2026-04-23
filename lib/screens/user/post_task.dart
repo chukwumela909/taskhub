@@ -506,7 +506,11 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
         final success = await taskProvider.createTask(
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),
-          categories: _selectedCategories.map((cat) => cat['_id'] as String).toList(),
+      categories: _selectedCategories
+        .map((cat) => cat['_id'])
+        .where((id) => id != null)
+        .map((id) => id.toString())
+        .toList(),
           budget: budget,
           deadline: _selectedDeadline!,
           isBiddingEnabled: _bargainEnabled,
@@ -555,82 +559,28 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top section with Post button
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    // Top section with title only
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Post task title
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Post task',
-                              style: TextStyle(
-                                color: Color(0xFF333333),
-                                fontSize: 24,
-                                fontFamily: 'Geist',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Create a task of your choice and\npost for taskers to be up to the task',
-                              style: TextStyle(
-                                color: const Color(0xFF606060).withOpacity(0.7),
-                                fontSize: 14,
-                                fontFamily: 'Geist',
-                                fontWeight: FontWeight.w400,
-                                height: 1.4,
-                              ),
-                            ),
-                          ],
+                        const Text(
+                          'Post task',
+                          style: TextStyle(
+                            color: Color(0xFF333333),
+                            fontSize: 24,
+                            fontFamily: 'Geist',
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-
-                        // Post button
-                        Container(
-                          child: ElevatedButton(
-                            onPressed: _isSubmitting 
-                                ? null  // Disable button when submitting
-                                : _submitTask,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isSubmitting 
-                                  ? Colors.grey.shade300
-                                  : const Color(0xFFE8E8E8),
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 6),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                            child: _isSubmitting
-                                ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(
-                                            primaryColor,
-                                          ),
-                                        ),
-                                      ),
-                                      
-                                  
-                                    ],
-                                  )
-                                : Text(
-                                    'Post',
-                                    style: TextStyle(
-                                      color: const Color(0xFF333333),
-                                      fontSize: 16,
-                                      fontFamily: 'Geist',
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Create a task of your choice and\npost for taskers to be up to the task',
+                          style: TextStyle(
+                            color: const Color(0xFF606060).withOpacity(0.7),
+                            fontSize: 14,
+                            fontFamily: 'Geist',
+                            fontWeight: FontWeight.w400,
+                            height: 1.4,
                           ),
                         ),
                       ],
@@ -864,7 +814,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                     // Deadline
                     const Text(
                       'Deadline ( End Date )',
-                      style: TextStyle(
+                        style: TextStyle(
                         color: Color(0xFF606060),
                         fontSize: 16,
                         fontFamily: 'Geist',
@@ -879,6 +829,7 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                       ),
                       child: TextField(
                         controller: _deadlineController,
+                        onTap: _selectDate,
                         readOnly: true,
                         decoration: InputDecoration(
                           hintText: 'DD - MM - YYYY',
@@ -1041,19 +992,44 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                                       physics: NeverScrollableScrollPhysics(),
                                       children: [
                                         ..._selectedImages.asMap().entries.map((entry) {
-                                          final index = entry.key;
                                           final image = entry.value;
-                                          return ClipRRect(
-                                            borderRadius: BorderRadius.circular(8),
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(8),
-                                                image: DecorationImage(
-                                                  image: FileImage(File(image.path)),
-                                                  fit: BoxFit.cover,
+                                          final index = entry.key;
+                                          return Stack(
+                                            children: [
+                                              Positioned.fill(
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(8),
+                                                      image: DecorationImage(
+                                                        image: FileImage(File(image.path)),
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
+                                              Positioned(
+                                                top: 6,
+                                                right: 6,
+                                                child: GestureDetector(
+                                                  onTap: () => _removeImage(index),
+                                                  child: Container(
+                                                    padding: const EdgeInsets.all(4),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black.withOpacity(0.6),
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: const Icon(
+                                                      Icons.close,
+                                                      size: 14,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           );
                                         }).toList(),
                                         // Add button
@@ -1085,7 +1061,63 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
 
                     // Tags
                     _buildTagsSection(),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 32),
+
+                    // Post button at bottom
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: ElevatedButton(
+                        onPressed: _isSubmitting 
+                            ? null  // Disable button when submitting
+                            : _submitTask,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isSubmitting 
+                              ? Colors.grey.shade300
+                              : primaryColor,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: _isSubmitting
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  const Text(
+                                    'Posting...',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontFamily: 'Geist',
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const Text(
+                                'Post Task',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontFamily: 'Geist',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -9,6 +9,7 @@ import 'package:taskhub/screens/user/post_task.dart';
 import 'package:taskhub/theme/const_value.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:taskhub/widgets/location_services_dialog.dart';
+// Removed old walkthrough imports (preferences_service, google_fonts, ui) since walkthrough now lives in DashboardScreen.
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -80,16 +81,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PostTaskScreen()),
-            );
+            context,
+            MaterialPageRoute(builder: (context) => const PostTaskScreen()),
+          );
         },
         backgroundColor: primaryColor,
         elevation: 4,
         shape: const CircleBorder(),
         child: const Icon(
           Icons.add,
-          weight: 100,
           color: Colors.white,
           size: 20,
         ),
@@ -117,6 +117,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
     );
   }
+  
+  // Removed old walkthrough logic; new walkthrough implemented inside DashboardScreen only.
   
   Widget _buildNavItem(int index, String iconName, String label) {
     final bool isSelected = _selectedIndex == index;

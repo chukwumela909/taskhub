@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:taskhub/screens/auths/starterPageSignin.dart';
 import 'package:taskhub/services/auth_service.dart';
 import 'package:taskhub/screens/auths/sign_in_user.dart';
 import 'package:taskhub/screens/auths/sign_in_tasker.dart';
@@ -536,13 +537,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       if (widget.userType == "tasker") {
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (context) => SignInTasker()),
+                          MaterialPageRoute(builder: (context) => StarterPageSignin()),
                           (route) => false,
                         );
                       } else {
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (context) => SignInUser()),
+                          MaterialPageRoute(builder: (context) => StarterPageSignin()),
                           (route) => false,
                         );
                       }

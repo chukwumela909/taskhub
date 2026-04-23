@@ -1,22 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:taskhub/screens/onboarding/onboard1.dart';
-import 'package:taskhub/screens/onboarding/onboard3.dart';
 import 'package:taskhub/theme/const_value.dart';
 
 
 
 
 class OnboardContent2 extends StatelessWidget {
-  final VoidCallback onProceed;
-  final Widget pageIndicator;
-
-  const OnboardContent2({
-    Key? key,
-    required this.onProceed,
-    required this.pageIndicator,
-  }) : super(key: key);
+  const OnboardContent2({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,16 +15,11 @@ class OnboardContent2 extends StatelessWidget {
       child: Container(
         color: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        constraints: BoxConstraints(
-          minHeight: MediaQuery.of(context).size.height - 
-                    MediaQuery.of(context).padding.top - 
-                    MediaQuery.of(context).padding.bottom,
-        ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+            Spacer(),
             SvgPicture.asset(
               'assets/images/onboard2.svg',
               width: 280,
@@ -45,7 +31,7 @@ class OnboardContent2 extends StatelessWidget {
             SizedBox(height: 40),
             RichText(
               text: TextSpan(
-                text: 'Run errands ',
+                text: 'Track your ',
                 style: TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 24,
@@ -54,7 +40,7 @@ class OnboardContent2 extends StatelessWidget {
                 ),
                 children: <TextSpan>[
                   TextSpan(
-                    text: 'quickly',
+                    text: 'orders',
                     style: TextStyle(
                       color: primaryColor,
                       fontSize: 24,
@@ -69,7 +55,7 @@ class OnboardContent2 extends StatelessWidget {
             .slideX(begin: -0.1, end: 0, duration: 500.ms, curve: Curves.easeOut, delay: 300.ms),
             SizedBox(height: 10),
             Text(
-              "Fast delivery with ready-to-go runners. ",
+              "Monitor your deliveries in real-time.",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Geist',
@@ -80,11 +66,7 @@ class OnboardContent2 extends StatelessWidget {
             .animate(key: ValueKey('subtitle-onboard2'))
             .fadeIn(duration: 400.ms, delay: 400.ms)
             .slideX(begin: 0.1, end: 0, duration: 500.ms, curve: Curves.easeOut, delay: 400.ms),
-            SizedBox(height: 40),
-            pageIndicator,
-            SizedBox(height: 20),
-          
-         
+            Spacer(),
           ],
         ),
       ),

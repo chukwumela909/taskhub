@@ -6,6 +6,7 @@ import 'package:taskhub/screens/auths/forgot_password.dart';
 
 import 'package:taskhub/screens/auths/starterPage.dart';
 import 'package:taskhub/screens/tasker/home.dart';
+import 'package:taskhub/screens/tasker/category_selection.dart';
 import 'package:taskhub/theme/const_value.dart';
 import 'package:taskhub/widgets/custom_loader.dart';
 
@@ -215,20 +216,35 @@ class _SignInTaskerState extends State<SignInTasker> {
                         // Hide the loader
                         Navigator.of(context).pop(); // Close the loader
                         
-                        if (success) {
+                        if (success && authProvider.token != null && authProvider.status == AuthStatus.authenticated) {
                           setState(() {
                             _isLoggingIn = false;
                           });
-                          
-                          // Navigate to tasker home screen with bottom navigation
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => TaskerHomeScreen()),
-                          );
-                        } else {
+              // After successful login, decide where to go based on categories
+              if (!mounted) return;
+              final user = authProvider.userData != null ? authProvider.userData!['user'] : null;
+              final List<dynamic> categories = (user != null ? (user['categories'] as List?) : null) ?? const [];
+              final bool hasCategories = categories.isNotEmpty;
+              if (!hasCategories) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CategorySelectionScreen(
+                      isFromAuth: true,
+                      token: authProvider.token,
+                    ),
+                  ),
+                );
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => TaskerHomeScreen()),
+                );
+              }
+            } else {
                           setState(() {
                             _isLoggingIn = false;
-                            _errorMessage = authProvider.errorMessage ?? 'Login failed. Please try again.';
+              _errorMessage = authProvider.errorMessage ?? 'Login failed. Please try again.';
                           });
                         }
                       } catch (e) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/task_service.dart';
 
 // Enum to represent the authentication status more clearly
 enum AuthStatus { unknown, authenticated, unauthenticated, loading, error }
@@ -92,7 +93,7 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _authService.userRegister(
+  await _authService.userRegister(
         fullName: fullNameController.text.trim(),
         emailAddress: emailController.text.trim(),
         phoneNumber: phoneController.text.trim(),
@@ -119,7 +120,7 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _authService.taskerRegister(
+  await _authService.taskerRegister(
         firstName: firstNameController.text.trim(),
         lastName: lastNameController.text.trim(),
         emailAddress: emailController.text.trim(),
@@ -153,11 +154,17 @@ class AuthProvider with ChangeNotifier {
         passwordController.text,
       );
 
+      // Clear the form controllers after successful login
+      emailController.clear();
+      passwordController.clear();
+
       if (response['status'] == 'success' && response['token'] != null) {
         // Token and user type are already stored by AuthService
         _token = response['token'];
         _isTasker = false; // Mark as regular user
         _status = AuthStatus.authenticated;
+
+        _authService.setNotificationId();
         
         // Fetch user data immediately after successful login
         await fetchUserData();
@@ -189,13 +196,27 @@ class AuthProvider with ChangeNotifier {
       );
 
       if (response['status'] == 'success' && response['token'] != null) {
+        // Clear the form controllers after successful login
+        emailController.clear();
+        passwordController.clear();
+
         // Token and user type are already stored by AuthService
         _token = response['token'];
+  // Prime token cache for other services to avoid storage read races
+  TaskService.setCachedToken(_token);
         _isTasker = true; // Mark as tasker
         _status = AuthStatus.authenticated;
-        
-        // Fetch tasker data immediately after successful login
-        await fetchTaskerData();
+                _authService.setTaskerNotificationId();
+  // Fetch tasker data immediately after successful login
+        final dataOk = await fetchTaskerData();
+        if (!dataOk || _token == null) {
+          // If we couldn't fetch tasker data or token became invalid, treat as failure
+          _status = AuthStatus.unauthenticated;
+          _errorMessage = 'Authentication failed. Please try again.';
+          notifyListeners();
+          return false;
+        }
+  // Update notification player ID for taskers as well
         
         notifyListeners();
         return true;
@@ -266,7 +287,11 @@ class AuthProvider with ChangeNotifier {
 
     try {
       final response = await _authService.fetchTaskerData();
-      _userData = response;
+  _userData = response;
+  // Normalize verification-related fields so UI can rely on a single boolean flag
+  _normalizeTaskerVerificationFlag();
+  // Keep token cache hot if token exists
+  if (_token != null) TaskService.setCachedToken(_token);
       _isTasker = true; // Mark as tasker
       _status = AuthStatus.authenticated;
       notifyListeners();
@@ -279,6 +304,71 @@ class AuthProvider with ChangeNotifier {
       await _authService.deleteToken();
       await _authService.deleteUserType();
       _status = AuthStatus.unauthenticated;
+      _handleError(e);
+      return false;
+    }
+  }
+
+  // Ensure we always expose `user.verifyIdentity` as a boolean, regardless of API variations
+  void _normalizeTaskerVerificationFlag() {
+    try {
+      final user = _userData != null ? _userData!['user'] : null;
+      if (user is Map<String, dynamic>) {
+        dynamic raw = user['verifyIdentity'];
+        raw ??= user['identityVerified'];
+        raw ??= user['isIdentityVerified'];
+        raw ??= user['verificationStatus'];
+        raw ??= user['identityStatus'];
+        raw ??= user['kycStatus'];
+
+        bool verified = false;
+        if (raw is bool) {
+          verified = raw;
+        } else if (raw is num) {
+          verified = raw == 1;
+        } else if (raw is String) {
+          final r = raw.toLowerCase().trim();
+          verified = r == 'true' || r == '1' || r == 'verified' || r == 'approved' || r == 'success' || r == 'completed';
+        }
+
+        user['verifyIdentity'] = verified;
+      }
+    } catch (_) {
+      // Best-effort normalization; ignore failures
+    }
+  }
+
+  // Verify tasker identity via NIN and refresh tasker data
+  Future<bool> verifyTaskerIdentity({
+    required String nin,
+    required String firstName,
+    required String lastName,
+    required String dateOfBirth,
+    required String gender,
+    String? phoneNumber,
+    String? email,
+  }) async {
+    _status = AuthStatus.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+  await _authService.verifyTaskerIdentity(
+        nin: nin,
+        firstName: firstName,
+        lastName: lastName,
+        dateOfBirth: dateOfBirth,
+        gender: gender,
+        phoneNumber: phoneNumber,
+        email: email,
+      );
+
+      // On success, refresh tasker data to update verifyIdentity flag
+      await fetchTaskerData();
+      _status = AuthStatus.authenticated;
+      notifyListeners();
+      return true;
+    } catch (e) {
       _handleError(e);
       return false;
     }
@@ -338,11 +428,13 @@ class AuthProvider with ChangeNotifier {
   }
 
   void logout() async {
-    await _authService.logout();
-    _token = null;
-    _userData = null;
-    _isTasker = false; // Reset tasker flag
-    _status = AuthStatus.unauthenticated;
+  await _authService.logout();
+  _token = null;
+  _userData = null;
+  _isTasker = false; // Reset tasker flag
+  _status = AuthStatus.unauthenticated;
+  // Clear any cached form inputs so they don't show after logout or role switch
+  clearFormFields();
     notifyListeners();
   }
 

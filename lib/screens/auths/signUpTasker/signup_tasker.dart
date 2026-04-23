@@ -6,6 +6,7 @@ import 'package:taskhub/screens/auths/signUpTasker/signup_tasker2.dart';
 import 'package:taskhub/screens/auths/sign_in_tasker.dart';
 
 import 'package:taskhub/theme/const_value.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignUpTasker extends StatefulWidget {
   const SignUpTasker({Key? key}) : super(key: key);
@@ -41,18 +42,16 @@ class _SignUpTaskerState extends State<SignUpTasker> {
                       RichText(
                         text: TextSpan(
                           text: 'Earn with ',
-                          style: const TextStyle(
+                          style: GoogleFonts.bricolageGrotesque(
                             fontSize: 28,
-                            fontFamily: 'Geist',
                             fontWeight: FontWeight.w800,
                             color: Colors.black,
                           ),
                           children: [
                             TextSpan(
                               text: 'Us !',
-                              style: TextStyle(
+                              style: GoogleFonts.bricolageGrotesque(
                                 fontSize: 28,
-                                fontFamily: 'Geist',
                                 fontWeight: FontWeight.w800,
                                 color: primaryColor,
                               ),
@@ -65,10 +64,8 @@ class _SignUpTaskerState extends State<SignUpTasker> {
                       Text(
                         "Be part of our platform today,\nsee what's possible",
                         textAlign: TextAlign.start,
-                        style: TextStyle(
+                        style: GoogleFonts.bricolageGrotesque(
                           fontSize: 16,
-                          
-                          fontFamily: 'Geist',
                           color: black.withOpacity(0.4),
                         ),
                       ),
@@ -95,9 +92,8 @@ class _SignUpTaskerState extends State<SignUpTasker> {
                     const SizedBox(width: 8),
                     Text(
                       "Basic Credentials",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 16,
-                        fontFamily: 'Geist',
                         fontWeight: FontWeight.w600,
                         color: primaryColor,
                       ),
@@ -105,10 +101,9 @@ class _SignUpTaskerState extends State<SignUpTasker> {
                     Spacer(),
                     Text(
                       "1/3",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 14,
                         fontWeight: FontWeight.w900,
-                        fontFamily: 'Geist',
                         color: primaryColor,
                       ),
                     ),
@@ -120,11 +115,11 @@ class _SignUpTaskerState extends State<SignUpTasker> {
               
               Text(
                 "First name",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
+                    fontWeight: FontWeight.w600,
                     color: black.withOpacity(0.5),
-                    fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(height: 8),
               CustomTextFormField(
@@ -141,11 +136,11 @@ class _SignUpTaskerState extends State<SignUpTasker> {
              
               Text(
                 "Last name",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
+                    fontWeight: FontWeight.w600,
                     color: black.withOpacity(0.5),
-                    fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(height: 8),
               CustomTextFormField(
@@ -163,16 +158,26 @@ class _SignUpTaskerState extends State<SignUpTasker> {
               
               Text(
                 "Email Address",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
+                    fontWeight: FontWeight.w600,
                     color: black.withOpacity(0.5),
-                    fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(height: 8),
               CustomTextFormField(
                 controller: authProvider.emailController,
                 hintText: "shola@example.domain",
+                validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email address';
+                    }
+                    final trimmed = value.trim();
+                    if (!RegExp(r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,}$').hasMatch(trimmed)) {
+                      return 'Please enter a valid email address';
+                    }
+                    return null;
+                  },
                 prefixIcon: SvgPicture.asset(
                   'assets/icons/email-icon.svg',
                   height: 2,
@@ -184,11 +189,11 @@ class _SignUpTaskerState extends State<SignUpTasker> {
               // -- "Email Address" text field --
               Text(
                 "Phone Number",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
+                    fontWeight: FontWeight.w600,
                     color: black.withOpacity(0.5),
-                    fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(height: 8),
               CustomTextFormField(
@@ -203,11 +208,11 @@ class _SignUpTaskerState extends State<SignUpTasker> {
               const SizedBox(height: 16),
               Text(
                 "Date of Birth",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
+                    fontWeight: FontWeight.w600,
                     color: black.withOpacity(0.5),
-                    fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(height: 8),
               CustomTextFormField(
@@ -282,7 +287,7 @@ class _SignUpTaskerState extends State<SignUpTasker> {
                   children: [
                     Text(
                       "Have an account? ",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 16,
                         color: Colors.black.withOpacity(0.7),
                         fontWeight: FontWeight.w500,
@@ -297,7 +302,7 @@ class _SignUpTaskerState extends State<SignUpTasker> {
                       },
                       child: Text(
                         "Login",
-                        style: TextStyle(
+                        style: GoogleFonts.bricolageGrotesque(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: primaryColor,

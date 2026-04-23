@@ -57,12 +57,12 @@ class _TaskerHistoryScreenState extends State<TaskerHistoryScreen> {
                 ],
               ),
               
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               
               // Filter tabs
               _buildFilterTabs(),
               
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               
               // History list
               Expanded(
@@ -146,7 +146,7 @@ class _TaskerHistoryScreenState extends State<TaskerHistoryScreen> {
       itemBuilder: (context, index) {
         final task = demoTasks[index];
         return Container(
-          margin: const EdgeInsets.only(bottom: 16),
+          margin: const EdgeInsets.only(bottom: 12),
           child: _buildHistoryItem(task),
         );
       },

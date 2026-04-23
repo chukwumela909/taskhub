@@ -192,6 +192,8 @@ class LocationProvider extends ChangeNotifier {
         _currentPosition = Position(
           latitude: latitude,
           longitude: longitude,
+          altitudeAccuracy: 0.0,
+          headingAccuracy: 0.0,
           timestamp: DateTime.parse(prefs.getString('timestamp') ?? DateTime.now().toIso8601String()),
           accuracy: prefs.getDouble('accuracy') ?? 0.0,
           altitude: 0.0,

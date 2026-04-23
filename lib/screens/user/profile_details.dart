@@ -7,6 +7,8 @@ import 'package:taskhub/services/image_service.dart';
 import 'package:taskhub/theme/const_value.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:taskhub/widgets/profile_picture_widget.dart';
+import 'package:intl/intl.dart';
 
 class ProfileDetailsScreen extends StatefulWidget {
   const ProfileDetailsScreen({super.key});
@@ -157,6 +159,21 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
     }
   }
 
+  // Helper method to format date of birth
+  String _formatDateOfBirth(String? dateString) {
+    if (dateString == null || dateString.isEmpty) {
+      return 'Not specified';
+    }
+    
+    try {
+      final DateTime date = DateTime.parse(dateString);
+      return DateFormat('MMMM dd, yyyy').format(date);
+    } catch (e) {
+      // If parsing fails, return the original string
+      return dateString;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -259,7 +276,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                     // Date of Birth section
                     _buildInfoCard(
                       'Date of Birth',
-                      user != null ? user['dateOfBirth'] : 'Loading...',
+                      user != null ? _formatDateOfBirth(user['dateOfBirth']) : 'Loading...',
                       'assets/icons/calendar-icon.svg',
                     ),
                     
@@ -329,57 +346,35 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
 
   Widget _buildProfileHeader(Map<String, dynamic>? user) {
     final profilePictureUrl = user?['profilePicture'] as String?;
+  final fullName = user != null ? (user['fullName'] ?? '') : '';
     
     return Column(
       children: [
         // Profile image
         Stack(
           children: [
+            // Avatar (initials-based)
             Container(
               width: 100,
               height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.white, width: 2),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(50),
+              child: ClipOval(
                 child: _isUpdatingProfilePicture
                     ? Container(
                         color: Colors.grey[200],
-                        child: const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
+                        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
                       )
-                    : profilePictureUrl != null && profilePictureUrl.isNotEmpty
-                        ? Image.network(
-                            profilePictureUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                'assets/images/profile-picture.png',
-                                fit: BoxFit.cover,
-                              );
-                            },
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Container(
-                                color: Colors.grey[200],
-                                child: const Center(
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                ),
-                              );
-                            },
-                          )
-                        : Image.asset(
-                            'assets/images/profile-picture.png',
-                            fit: BoxFit.cover,
-                          ),
+                    : ProfilePictureWidget(
+                        profilePictureUrl: profilePictureUrl, // ignored
+                        displayName: fullName,
+                        radius: 50,
+                      ),
               ),
             ),
+            // Keep camera button to potentially allow future upload (even though avatar used)
             Positioned(
               bottom: 0,
               right: 0,
@@ -389,10 +384,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                 decoration: BoxDecoration(
                   color: primaryColor,
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 2,
-                  ),
+                  border: Border.all(color: Colors.white, width: 2),
                 ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
@@ -405,11 +397,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
-                      : const Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
-                          size: 16,
-                        ),
+                      : const Icon(Icons.camera_alt, color: Colors.white, size: 16),
                   onPressed: _isUpdatingProfilePicture ? null : _updateProfilePicture,
                 ),
               ),
@@ -436,7 +424,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
             borderRadius: BorderRadius.circular(200),
           ),
           child: const Text(
-            'Taskhub User',
+            'User',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,

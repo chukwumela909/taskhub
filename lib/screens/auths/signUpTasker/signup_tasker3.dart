@@ -7,6 +7,7 @@ import 'package:taskhub/screens/auths/sign_in_tasker.dart';
 
 import 'package:taskhub/screens/auths/verify_email.dart';
 import 'package:taskhub/theme/const_value.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignupTasker3 extends StatefulWidget {
   const SignupTasker3({Key? key}) : super(key: key);
@@ -41,18 +42,16 @@ class _SignupTasker3State extends State<SignupTasker3> {
                       RichText(
                         text: TextSpan(
                           text: 'Earn with ',
-                          style: const TextStyle(
+                          style: GoogleFonts.bricolageGrotesque(
                             fontSize: 28,
-                            fontFamily: 'Geist',
                             fontWeight: FontWeight.w800,
                             color: Colors.black,
                           ),
                           children: [
                             TextSpan(
                               text: 'Us !',
-                              style: TextStyle(
+                              style: GoogleFonts.bricolageGrotesque(
                                 fontSize: 28,
-                                fontFamily: 'Geist',
                                 fontWeight: FontWeight.w800,
                                 color: primaryColor,
                               ),
@@ -65,9 +64,8 @@ class _SignupTasker3State extends State<SignupTasker3> {
                       Text(
                         "Be part of our platform today,\nsee what's possible",
                         textAlign: TextAlign.start,
-                        style: TextStyle(
+                        style: GoogleFonts.bricolageGrotesque(
                           fontSize: 16,
-                          fontFamily: 'Geist',
                           color: black.withOpacity(0.4),
                         ),
                       ),
@@ -94,9 +92,8 @@ class _SignupTasker3State extends State<SignupTasker3> {
                     const SizedBox(width: 8),
                     Text(
                       "Security",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 16,
-                        fontFamily: 'Geist',
                         fontWeight: FontWeight.w600,
                         color: primaryColor,
                       ),
@@ -104,10 +101,9 @@ class _SignupTasker3State extends State<SignupTasker3> {
                     Spacer(),
                     Text(
                       "3/3",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 14,
                         fontWeight: FontWeight.w900,
-                        fontFamily: 'Geist',
                         color: primaryColor,
                       ),
                     ),
@@ -118,9 +114,8 @@ class _SignupTasker3State extends State<SignupTasker3> {
 
               Text(
                 "Password",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
                     color: black.withOpacity(0.5),
                     fontWeight: FontWeight.w600),
               ),
@@ -139,9 +134,8 @@ class _SignupTasker3State extends State<SignupTasker3> {
 
               Text(
                 "Confirm password",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
                     color: black.withOpacity(0.5),
                     fontWeight: FontWeight.w600),
               ),
@@ -234,7 +228,7 @@ class _SignupTasker3State extends State<SignupTasker3> {
                   children: [
                     Text(
                       "Have an account? ",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 16,
                         color: Colors.black.withOpacity(0.7),
                         fontWeight: FontWeight.w500,
@@ -249,10 +243,11 @@ class _SignupTasker3State extends State<SignupTasker3> {
                       },
                       child: Text(
                         "Login",
-                        style: TextStyle(
+                        style: GoogleFonts.bricolageGrotesque(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: primaryColor,
+                          decoration: TextDecoration.underline,
                         ),
                       ),
                     ),

@@ -6,6 +6,7 @@ import 'package:taskhub/providers/auth_provider.dart';
 import 'package:taskhub/screens/auths/signUpUser/signup_user3.dart';
 import 'package:taskhub/screens/auths/sign_in_user.dart';
 import 'package:taskhub/theme/const_value.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignupUser2 extends StatefulWidget {
   const SignupUser2({Key? key}) : super(key: key);
@@ -84,18 +85,16 @@ class _SignupUser2State extends State<SignupUser2> {
                         RichText(
                           text: TextSpan(
                             text: 'Join us ',
-                            style: const TextStyle(
+                            style: GoogleFonts.bricolageGrotesque(
                               fontSize: 28,
-                              fontFamily: 'Geist',
                               fontWeight: FontWeight.w800,
                               color: Colors.black,
                             ),
                             children: [
                               TextSpan(
                                 text: 'Today !',
-                                style: TextStyle(
+                                style: GoogleFonts.bricolageGrotesque(
                                   fontSize: 28,
-                                  fontFamily: 'Geist',
                                   fontWeight: FontWeight.w800,
                                   color: primaryColor,
                                 ),
@@ -108,9 +107,8 @@ class _SignupUser2State extends State<SignupUser2> {
                         Text(
                           "Be part of our platform today,\nsee what's possible",
                           textAlign: TextAlign.start,
-                          style: TextStyle(
+                          style: GoogleFonts.bricolageGrotesque(
                             fontSize: 16,
-                            fontFamily: 'Geist',
                             color: black.withOpacity(0.4),
                           ),
                         ),
@@ -138,9 +136,8 @@ class _SignupUser2State extends State<SignupUser2> {
                     const SizedBox(width: 8),
                     Text(
                       "Nationality & Residence",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 16,
-                        fontFamily: 'Geist',
                         fontWeight: FontWeight.w600,
                         color: primaryColor,
                       ),
@@ -148,10 +145,9 @@ class _SignupUser2State extends State<SignupUser2> {
                     Spacer(),
                     Text(
                       "2/3",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 14,
                         fontWeight: FontWeight.w900,
-                        fontFamily: 'Geist',
                         color: primaryColor,
                       ),
                     ),
@@ -163,11 +159,11 @@ class _SignupUser2State extends State<SignupUser2> {
               // Country field
               Text(
                 "Country",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
+                    fontWeight: FontWeight.w600,
                     color: black.withOpacity(0.5),
-                    fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(height: 8),
               CustomTextFormField(
@@ -189,11 +185,11 @@ class _SignupUser2State extends State<SignupUser2> {
               // State field
               Text(
                 "State of Residence",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
+                    fontWeight: FontWeight.w600,
                     color: black.withOpacity(0.5),
-                    fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(height: 16),
               CustomDropdown(
@@ -214,9 +210,9 @@ class _SignupUser2State extends State<SignupUser2> {
                   padding: const EdgeInsets.only(top: 8.0, left: 12.0),
                   child: Text(
                     'Please select a state',
-                    style: TextStyle(
-                      color: Colors.red,
+                    style: GoogleFonts.bricolageGrotesque(
                       fontSize: 12,
+                      color: Colors.red,
                     ),
                   ),
                 ),
@@ -225,11 +221,11 @@ class _SignupUser2State extends State<SignupUser2> {
               // Address field
               Text(
                 "Address",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
+                    fontWeight: FontWeight.w600,
                     color: black.withOpacity(0.5),
-                    fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(height: 8),
               CustomTextFormField(
@@ -286,7 +282,7 @@ class _SignupUser2State extends State<SignupUser2> {
                   children: [
                     Text(
                       "Have an account? ",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 16,
                         color: Colors.black.withOpacity(0.7),
                         fontWeight: FontWeight.w500,
@@ -298,7 +294,7 @@ class _SignupUser2State extends State<SignupUser2> {
                       },
                       child: Text(
                         "Login",
-                        style: TextStyle(
+                        style: GoogleFonts.bricolageGrotesque(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: primaryColor,

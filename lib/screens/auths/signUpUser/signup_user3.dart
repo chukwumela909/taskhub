@@ -7,6 +7,7 @@ import 'package:taskhub/screens/auths/sign_in_user.dart';
 import 'package:taskhub/screens/auths/verify_email.dart';
 import 'package:taskhub/theme/const_value.dart';
 import 'package:taskhub/widgets/custom_loader.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignupUser3 extends StatefulWidget {
   const SignupUser3({ Key? key }) : super(key: key);
@@ -50,18 +51,16 @@ class _SignupUser3State extends State<SignupUser3> {
                         RichText(
                           text: TextSpan(
                             text: 'Join us ',
-                            style: const TextStyle(
+                            style: GoogleFonts.bricolageGrotesque(
                               fontSize: 28,
-                              fontFamily: 'Geist',
                               fontWeight: FontWeight.w800,
                               color: Colors.black,
                             ),
                             children: [
                               TextSpan(
                                 text: 'Today !',
-                                style: TextStyle(
+                                style: GoogleFonts.bricolageGrotesque(
                                   fontSize: 28,
-                                  fontFamily: 'Geist',
                                   fontWeight: FontWeight.w800,
                                   color: primaryColor,
                                 ),
@@ -74,9 +73,8 @@ class _SignupUser3State extends State<SignupUser3> {
                         Text(
                           "Be part of our platform today,\nsee what's possible",
                           textAlign: TextAlign.start,
-                          style: TextStyle(
+                          style: GoogleFonts.bricolageGrotesque(
                             fontSize: 16,
-                            fontFamily: 'Geist',
                             color: black.withOpacity(0.4),
                           ),
                         ),
@@ -104,9 +102,8 @@ class _SignupUser3State extends State<SignupUser3> {
                     const SizedBox(width: 8),
                     Text(
                       "Security",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 16,
-                        fontFamily: 'Geist',
                         fontWeight: FontWeight.w600,
                         color: primaryColor,
                       ),
@@ -114,10 +111,9 @@ class _SignupUser3State extends State<SignupUser3> {
                     Spacer(),
                     Text(
                       "3/3",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 14,
                         fontWeight: FontWeight.w900,
-                        fontFamily: 'Geist',
                         color: primaryColor,
                       ),
                     ),
@@ -139,9 +135,8 @@ class _SignupUser3State extends State<SignupUser3> {
                   ),
                   child: Text(
                     _errorMessage!,
-                    style: TextStyle(
+                    style: GoogleFonts.bricolageGrotesque(
                       color: Colors.red,
-                      fontFamily: 'Geist',
                       fontSize: 14,
                     ),
                   ),
@@ -150,9 +145,8 @@ class _SignupUser3State extends State<SignupUser3> {
               // Password field
               Text(
                 "Password",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
                     color: black.withOpacity(0.5),
                     fontWeight: FontWeight.w600),
               ),
@@ -193,9 +187,8 @@ class _SignupUser3State extends State<SignupUser3> {
               // Confirm password field
               Text(
                 "Confirm password",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
                     color: black.withOpacity(0.5),
                     fontWeight: FontWeight.w600),
               ),
@@ -300,7 +293,7 @@ class _SignupUser3State extends State<SignupUser3> {
                   children: [
                     Text(
                       "Have an account? ",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 16,
                         color: Colors.black.withOpacity(0.7),
                         fontWeight: FontWeight.w500,
@@ -315,7 +308,7 @@ class _SignupUser3State extends State<SignupUser3> {
                       },
                       child: Text(
                         "Login",
-                        style: TextStyle(
+                        style: GoogleFonts.bricolageGrotesque(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: primaryColor,

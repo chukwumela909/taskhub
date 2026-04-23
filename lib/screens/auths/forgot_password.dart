@@ -7,9 +7,9 @@ import 'package:taskhub/theme/const_value.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   final String userType; // "user" or "tasker"
-  
+
   const ForgotPasswordScreen({
-    Key? key, 
+    Key? key,
     this.userType = "user", // Default to user
   }) : super(key: key);
 
@@ -57,7 +57,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         body: Form(
           key: _formKey,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -165,10 +166,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     controller: _emailController,
                     hintText: "you@example.domain",
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      if (value == null || value.trim().isEmpty) {
                         return 'Please enter your email address';
                       }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                      final email = value.trim();
+                      if (email.contains(' ')) {
+                        return 'Email address must not contain spaces';
+                      }
+                      final emailRegex =
+                          RegExp(r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,}$');
+                      if (!emailRegex.hasMatch(email)) {
                         return 'Please enter a valid email address';
                       }
                       return null;
@@ -460,7 +467,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   void _sendResetLink() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     if (_isLoading) return;
 
     setState(() {
@@ -470,18 +477,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     try {
       final email = _emailController.text.trim();
-      
+
       // Call the actual API
       final response = await _authService.forgotPassword(
         emailAddress: email,
         type: widget.userType,
       );
-      
+
       setState(() {
         _isLoading = false;
         _emailSent = true;
       });
-      
+
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -496,7 +503,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
         ),
       );
-      
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -504,4 +510,4 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       });
     }
   }
-} 
+}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taskhub/providers/task_provider.dart';
 import 'package:taskhub/screens/auths/starterPageSignin.dart';
 import 'package:taskhub/theme/const_value.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,7 +10,6 @@ import 'package:taskhub/screens/tasker/category_selection.dart';
 import 'package:taskhub/screens/user/change_password.dart';
 import 'package:taskhub/screens/user/get_help.dart';
 import 'package:taskhub/screens/user/faq.dart';
-import 'package:taskhub/screens/auths/sign_in_user.dart';
 import 'package:taskhub/widgets/profile_picture_widget.dart';
 
 class TaskerProfileScreen extends StatefulWidget {
@@ -37,12 +37,13 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
     final userData = authProvider.userData;
     final user = userData != null ? userData['user'] : null;
     final walletBalance = user != null ? user['wallet'] ?? 0 : 0;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A1A),
       body: SafeArea(
         child: authProvider.status == AuthStatus.loading && userData == null
-            ? const Center(child: CircularProgressIndicator(color: Colors.white))
+            ? const Center(
+                child: CircularProgressIndicator(color: Colors.white))
             : SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -62,25 +63,25 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
                               color: Colors.white,
                             ),
                           ),
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: IconButton(
-                              icon: SvgPicture.asset(
-                                'assets/icons/notification.svg',
-                                width: 24,
-                                height: 24,
-                                colorFilter:
-                                    ColorFilter.mode(taskerPrimaryColor, BlendMode.srcIn),
-                              ),
-                              onPressed: () {
-                                // Handle notification
-                              },
-                            ),
-                          ),
+                          // Container(
+                          //   width: 40,
+                          //   height: 40,
+                          //   decoration: BoxDecoration(
+                          //     borderRadius: BorderRadius.circular(12),
+                          //   ),
+                          //   child: IconButton(
+                          //     icon: SvgPicture.asset(
+                          //       'assets/icons/notification.svg',
+                          //       width: 24,
+                          //       height: 24,
+                          //       colorFilter:
+                          //           ColorFilter.mode(taskerPrimaryColor, BlendMode.srcIn),
+                          //     ),
+                          //     onPressed: () {
+                          //       // Handle notification
+                          //     },
+                          //   ),
+                          // ),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -91,17 +92,17 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
                         color: Colors.grey.withOpacity(0.3),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
                       // Header with notification icon and profile
                       _buildHeader(context, userData),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
                       // Switch to User card
                       _buildUserCard(),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
                       // Menu items
                       // _buildMenuItem(
@@ -116,14 +117,63 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
                       //     );
                       //   },
                       // ),
-                      _buildMenuItem(
-                        'Earnings',
-                        'assets/icons/cred-icon.svg',
-                        onTap: () {
-                          // Navigate to earnings screen
-                        },
-                        showTrailing: true,
-                        trailingText: '₦$walletBalance',
+                      // _buildMenuItem(
+                      //   'Earnings',
+                      //   'assets/icons/cred-icon.svg',
+                      //   onTap: () {
+                      //     // Navigate to earnings screen
+                      //   },
+                      //   showTrailing: true,
+                      //   trailingText: '₦$walletBalance',
+                      // ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14, horizontal: 4),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2A2A2A),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: SvgPicture.asset(
+                                  'assets/icons/cred-icon.svg',
+                                  width: 24,
+                                  height: 24,
+                                  colorFilter: const ColorFilter.mode(
+                                      Colors.white, BlendMode.srcIn),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'Earnings',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                  fontFamily: 'Geist',
+                                ),
+                              ),
+                            ),
+                             Text(
+                                '₦$walletBalance',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                  color: taskerPrimaryColor,
+                                  fontFamily: 'Geist',
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                           
+                         
+                          ],
+                        ),
                       ),
                       _buildMenuItem(
                         'Service Categories',
@@ -132,15 +182,19 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
                           final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const CategorySelectionScreen(isFromAuth: false),
+                              builder: (context) =>
+                                  const CategorySelectionScreen(
+                                      isFromAuth: false),
                             ),
                           );
-                          
+
                           // Refresh user data if categories were updated
                           if (result == true) {
-                            final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                            final authProvider = Provider.of<AuthProvider>(
+                                context,
+                                listen: false);
                             await authProvider.fetchTaskerData();
-                            
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: const Text(
@@ -171,7 +225,8 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ChangePasswordScreen(),
+                              builder: (context) =>
+                                  const ChangePasswordScreen(),
                             ),
                           );
                         },
@@ -220,7 +275,7 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
   Widget _buildHeader(BuildContext context, Map<String, dynamic>? userData) {
     final user = userData != null ? userData['user'] : null;
     final profilePictureUrl = user?['profilePicture'] as String?;
-    
+
     // Handle tasker name display (firstName + lastName instead of fullName)
     String displayName = 'Loading...';
     if (user != null) {
@@ -232,12 +287,13 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
         displayName = user['fullName'];
       }
     }
-    
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const TaskerProfileDetailsScreen()),
+          MaterialPageRoute(
+              builder: (context) => const TaskerProfileDetailsScreen()),
         );
       },
       child: Row(
@@ -267,7 +323,7 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    'Taskhub Tasker',
+                    'Tasker',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -280,7 +336,6 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
               ),
             ],
           ),
-
           SvgPicture.asset(
             'assets/icons/arrow-right.svg',
             width: 20,
@@ -293,72 +348,88 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
   }
 
   Widget _buildUserCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: taskerPrimaryColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: taskerPrimaryColor.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: taskerPrimaryColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                'assets/icons/switch-icon.svg',
-                width: 24,
-                height: 24,
-                colorFilter: ColorFilter.mode(taskerPrimaryColor, BlendMode.srcIn),
+    return InkWell(
+      onTap: () {
+        // Logout and navigate to starter sign-in
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+        authProvider.logout();
+        taskProvider.clearAll();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const StarterPageSignin()),
+          (route) => false,
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: taskerPrimaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: taskerPrimaryColor.withOpacity(0.3)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: taskerPrimaryColor.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  'assets/icons/switch-icon.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter:
+                      ColorFilter.mode(taskerPrimaryColor, BlendMode.srcIn),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Switch to User',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF673AB7),
-                    fontFamily: 'Geist',
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Switch to User',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF673AB7),
+                      fontFamily: 'Geist',
+                    ),
                   ),
-                ),
-                Text(
-                  'Post tasks and hire taskers.',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                    fontFamily: 'Geist',
+                  Text(
+                    'Post tasks and hire taskers.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                      fontFamily: 'Geist',
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 40,
-            height: 30,
-            decoration: BoxDecoration(
-              color: taskerPrimaryColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.arrow_forward,
-                color: taskerPrimaryColor,
+                ],
               ),
             ),
-          ),
-        ],
+            Container(
+              width: 40,
+              height: 30,
+              decoration: BoxDecoration(
+                color: taskerPrimaryColor.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.arrow_forward,
+                  color: taskerPrimaryColor,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -373,7 +444,7 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
     return InkWell(
       onTap: onTap,
       child: Container(
-       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 5),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
         child: Row(
           children: [
             Container(
@@ -388,12 +459,12 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
                   iconPath,
                   width: 24,
                   height: 24,
-                  colorFilter: const ColorFilter.mode(
-                      Colors.white, BlendMode.srcIn),
+                  colorFilter:
+                      const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,
@@ -421,7 +492,8 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
               'assets/icons/arrow-right.svg',
               width: 16,
               height: 16,
-              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              colorFilter:
+                  const ColorFilter.mode(Colors.white, BlendMode.srcIn),
             ),
           ],
         ),
@@ -465,12 +537,17 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
             ),
             TextButton(
               onPressed: () {
-                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                final authProvider =
+                    Provider.of<AuthProvider>(context, listen: false);
+                final taskProvider =
+                    Provider.of<TaskProvider>(context, listen: false);
                 authProvider.logout();
+                taskProvider.clearAll();
                 Navigator.of(context).pop();
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const StarterPageSignin()),
+                  MaterialPageRoute(
+                      builder: (context) => const StarterPageSignin()),
                   (route) => false,
                 );
               },
@@ -488,4 +565,4 @@ class _TaskerProfileScreenState extends State<TaskerProfileScreen> {
       },
     );
   }
-} 
+}

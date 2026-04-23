@@ -5,6 +5,7 @@ import 'package:taskhub/providers/auth_provider.dart';
 import 'package:taskhub/screens/auths/signUpTasker/signup_tasker3.dart';
 import 'package:taskhub/screens/auths/sign_in_tasker.dart';
 import 'package:taskhub/theme/const_value.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignupTasker2 extends StatefulWidget {
   const SignupTasker2({ Key? key }) : super(key: key);
@@ -80,18 +81,16 @@ class _SignupTasker2State extends State<SignupTasker2> {
                       RichText(
                         text: TextSpan(
                           text: 'Earn with ',
-                          style: const TextStyle(
+                          style: GoogleFonts.bricolageGrotesque(
                             fontSize: 28,
-                            fontFamily: 'Geist',
                             fontWeight: FontWeight.w800,
                             color: Colors.black,
                           ),
                           children: [
                             TextSpan(
                               text: 'Us !',
-                              style: TextStyle(
+                              style: GoogleFonts.bricolageGrotesque(
                                 fontSize: 28,
-                                fontFamily: 'Geist',
                                 fontWeight: FontWeight.w800,
                                 color: primaryColor,
                               ),
@@ -104,9 +103,8 @@ class _SignupTasker2State extends State<SignupTasker2> {
                       Text(
                         "Be part of our platform today,\nsee what's possible",
                         textAlign: TextAlign.start,
-                        style: TextStyle(
+                        style: GoogleFonts.bricolageGrotesque(
                           fontSize: 16,
-                          fontFamily: 'Geist',
                           color: black.withOpacity(0.4),
                         ),
                       ),
@@ -134,9 +132,8 @@ class _SignupTasker2State extends State<SignupTasker2> {
                     const SizedBox(width: 8),
                     Text(
                       "Nationality & Residence",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 16,
-                        fontFamily: 'Geist',
                         fontWeight: FontWeight.w600,
                         color: primaryColor,
                       ),
@@ -144,10 +141,9 @@ class _SignupTasker2State extends State<SignupTasker2> {
                     Spacer(),
                     Text(
                       "2/3",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 14,
                         fontWeight: FontWeight.w900,
-                        fontFamily: 'Geist',
                         color: primaryColor,
                       ),
                     ),
@@ -159,11 +155,11 @@ class _SignupTasker2State extends State<SignupTasker2> {
         
               Text(
                 "Country",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
+                    fontWeight: FontWeight.w600,
                     color: black.withOpacity(0.5),
-                    fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(height: 8),
               CustomTextFormField(
@@ -181,11 +177,11 @@ class _SignupTasker2State extends State<SignupTasker2> {
 
               Text(
                 "State of Residence",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
+                    fontWeight: FontWeight.w600,
                     color: black.withOpacity(0.5),
-                    fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(height: 16),
               CustomDropdown(
@@ -203,11 +199,11 @@ class _SignupTasker2State extends State<SignupTasker2> {
               const SizedBox(height: 16),
               Text(
                 "State of Origin",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
+                    fontWeight: FontWeight.w600,
                     color: black.withOpacity(0.5),
-                    fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(height: 16),
               CustomDropdown(
@@ -227,11 +223,11 @@ class _SignupTasker2State extends State<SignupTasker2> {
           
               Text(
                 "Address",
-                style: TextStyle(
+                style: GoogleFonts.bricolageGrotesque(
                     fontSize: 16,
-                    fontFamily: 'Geist',
+                    fontWeight: FontWeight.w600,
                     color: black.withOpacity(0.5),
-                    fontWeight: FontWeight.w600),
+                ),
               ),
               const SizedBox(height: 8),
               CustomTextFormField(
@@ -266,7 +262,7 @@ class _SignupTasker2State extends State<SignupTasker2> {
                   children: [
                     Text(
                       "Have an account? ",
-                      style: TextStyle(
+                      style: GoogleFonts.bricolageGrotesque(
                         fontSize: 16,
                         color: Colors.black.withOpacity(0.7),
                         fontWeight: FontWeight.w500,
@@ -281,7 +277,7 @@ class _SignupTasker2State extends State<SignupTasker2> {
                       },
                       child: Text(
                         "Login",
-                        style: TextStyle(
+                        style: GoogleFonts.bricolageGrotesque(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: primaryColor,

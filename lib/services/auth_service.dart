@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class AuthService {
-  final String _baseUrl = "https://taskhub-server-yw24.onrender.com/api/auth";
+  final String _baseUrl = "https://taskhub-server1.onrender.com/api/auth";
+  // Core API root (non-auth endpoints)
+  final String _apiRoot = "https://taskhub-server1.onrender.com/api";
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   // Store the token in secure storage
@@ -112,13 +115,15 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      
+
+      print(data);
+
       // Store the token if the login was successful
       if (data['status'] == 'success' && data['token'] != null) {
         await storeToken(data['token']);
         await storeUserType('user');
       }
-      
+
       return data;
     } else {
       // Attempt to parse error message from response body
@@ -136,11 +141,59 @@ class AuthService {
     }
   }
 
+  Future<String?> getPlayerId() async {
+    var deviceState = await OneSignal.User.pushSubscription.id;
+
+    if (deviceState == null || deviceState == null) {
+      return null;
+    }
+
+    var playerId = await deviceState;
+    return playerId;
+  }
+
+  setNotificationId() async {
+    var not_id = await getPlayerId();
+    final token = await getToken();
+
+    final response = await http.put(
+      Uri.parse('$_baseUrl/user/notification-id'),
+      headers: <String, String>{
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'notificationId': not_id ?? '',
+      }),
+    );
+    final data = jsonDecode(response.body);
+    print(data);
+  }
+
+  // Update OneSignal player ID for tasker accounts
+  setTaskerNotificationId() async {
+    var not_id = await getPlayerId();
+    final token = await getToken();
+
+    final response = await http.put(
+      Uri.parse('$_baseUrl/tasker/notification-id'),
+      headers: <String, String>{
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'notificationId': not_id ?? '',
+      }),
+    );
+    final data = jsonDecode(response.body);
+    print(data);
+  }
+
   // New method to fetch user data
   Future<Map<String, dynamic>> fetchUserData() async {
     // Get the token from secure storage
     final token = await getToken();
-    
+
     if (token == null) {
       throw 'Authentication token not found';
     }
@@ -173,7 +226,7 @@ class AuthService {
   Future<Map<String, dynamic>> fetchTaskerData() async {
     // Get the token from secure storage
     final token = await getToken();
-    
+
     if (token == null) {
       throw 'Authentication token not found';
     }
@@ -338,7 +391,8 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> taskerLogin(String email, String password) async {
+  Future<Map<String, dynamic>> taskerLogin(
+      String email, String password) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/tasker-login'),
       headers: <String, String>{
@@ -352,13 +406,13 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      
+
       // Store the token if the login was successful
       if (data['status'] == 'success' && data['token'] != null) {
         await storeToken(data['token']);
         await storeUserType('tasker');
       }
-      
+
       return data;
     } else {
       // Attempt to parse error message from response body
@@ -455,7 +509,7 @@ class AuthService {
   }) async {
     // Get the token from secure storage
     final token = await getToken();
-    
+
     if (token == null) {
       throw 'Authentication token not found';
     }
@@ -496,7 +550,7 @@ class AuthService {
   }) async {
     // Get the token from secure storage
     final token = await getToken();
-    
+
     if (token == null) {
       throw 'Authentication token not found';
     }
@@ -537,7 +591,7 @@ class AuthService {
   }) async {
     // Get the token from secure storage
     final token = await getToken();
-    
+
     if (token == null) {
       throw 'Authentication token not found';
     }
@@ -575,7 +629,7 @@ class AuthService {
   // Get all categories (public endpoint)
   Future<Map<String, dynamic>> getAllCategories() async {
     final response = await http.get(
-      Uri.parse('https://taskhub-server-yw24.onrender.com/api/categories'),
+      Uri.parse('$_apiRoot/categories'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -600,11 +654,12 @@ class AuthService {
   // Update tasker categories
   Future<Map<String, dynamic>> updateTaskerCategories({
     required List<String> categories,
+    String? token, // Optional explicit token to avoid storage race conditions
   }) async {
-    // Get the token from secure storage
-    final token = await getToken();
-    
-    if (token == null) {
+    // Prefer provided token, otherwise fall back to secure storage
+    final authToken = token ?? await getToken();
+
+    if (authToken == null || authToken.isEmpty) {
       throw 'Authentication token not found';
     }
 
@@ -613,15 +668,17 @@ class AuthService {
     };
 
     final response = await http.put(
-      Uri.parse('$_baseUrl/categories'),
+      Uri.parse('$_apiRoot/auth/categories'),
       headers: <String, String>{
-        'Authorization': 'Bearer $token',
+        'Authorization': 'Bearer $authToken',
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(body),
     );
 
     if (response.statusCode == 200) {
+      print(jsonDecode(response.body));
+      print("hellooo");
       return jsonDecode(response.body);
     } else {
       String message = 'Categories update failed';
@@ -634,6 +691,58 @@ class AuthService {
         message = 'Update failed (Status Code: ${response.statusCode})';
       }
       throw message;
+    }
+  }
+
+  // Verify tasker identity using NIN
+  Future<Map<String, dynamic>> verifyTaskerIdentity({
+    required String nin,
+    required String firstName,
+    required String lastName,
+    required String dateOfBirth, // YYYY-MM-DD
+    required String gender, // male | female
+    String? phoneNumber,
+    String? email,
+  }) async {
+    final token = await getToken();
+    if (token == null) {
+      throw 'Authentication token not found';
+    }
+
+    final Map<String, dynamic> body = {
+      'nin': nin,
+      'firstName': firstName,
+      'lastName': lastName,
+      'dateOfBirth': dateOfBirth,
+      'gender': gender,
+      if (phoneNumber != null && phoneNumber.isNotEmpty) 'phoneNumber': phoneNumber,
+      if (email != null && email.isNotEmpty) 'email': email,
+    };
+
+    final response = await http.post(
+      Uri.parse('$_baseUrl/verify-identity'),
+      headers: <String, String>{
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print(jsonDecode(response.body));
+      String message = 'Identity verification failed';
+      try {
+        final body = jsonDecode(response.body);
+        print(body);
+        if (body['message'] != null) {
+          message = body['message'];
+        }
+      } catch (_) {
+        message = 'Verification failed (Status Code: ${response.statusCode})';
+      }
+      throw message; 
     }
   }
 

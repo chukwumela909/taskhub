@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:taskhub/screens/onboarding/onboard1.dart';
 import 'package:taskhub/screens/onboarding/onboard2.dart';
@@ -17,21 +18,10 @@ class OnboardingWrapper extends StatefulWidget {
 class _OnboardingWrapperState extends State<OnboardingWrapper> {
   PageController _pageController = PageController();
   int _currentPage = 0;
-  bool _isAnimating = false;
 
   void _onPageChanged(int page) {
     setState(() {
       _currentPage = page;
-      _isAnimating = true;
-    });
-    
-    // Reset animation flag after the main animations complete
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) {
-        setState(() {
-          _isAnimating = false;
-        });
-      }
     });
   }
 
@@ -120,64 +110,113 @@ class _OnboardingWrapperState extends State<OnboardingWrapper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Explicitly set background color
+      backgroundColor: Colors.white,
       body: Column(
         children: [
-          // PageView content
+          // Sliding content area
           Expanded(
             child: PageView(
               controller: _pageController,
               onPageChanged: _onPageChanged,
               children: [
-                OnboardContent1(
-                  onProceed: _nextPage,
-                  pageIndicator: _buildPageIndicator(),
-                ),
-                OnboardContent2(
-                  onProceed: _nextPage,
-                  pageIndicator: _buildPageIndicator(),
-                ),
-                OnboardContent3(
-                  onProceed: _completeOnboarding,
-                  pageIndicator: _buildPageIndicator(),
-                ),
+                OnboardContent1(),
+                OnboardContent2(),
+                OnboardContent3(),
               ],
             ),
           ),
           
-          // Bottom navigation bar
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Back button
-                 SizedBox(width: 50),
-                  
-                  // Skip button (only on first two pages)
-                  _currentPage < 2
-                    ? TextButton(
-                        onPressed: _skipToEnd,
-                        child: Text(
-                          "Skip",
+          // Fixed bottom section
+          Container(
+            color: Colors.white,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Page indicator (fixed)
+                    _buildPageIndicator()
+                      .animate()
+                      .fadeIn(duration: 400.ms, delay: 1200.ms)
+                      .scale(begin: Offset(0.8, 0.8), end: Offset(1.0, 1.0), duration: 500.ms, curve: Curves.easeOutBack, delay: 1200.ms),
+                    
+                    SizedBox(height: 40),
+                    
+                    // Button or navigation for last page
+                    if (_currentPage == 2) ...[
+                      PrimaryButton(
+                        label: "Get Started",
+                        onPressed: _completeOnboarding,
+                      )
+                      .animate(key: ValueKey('button-onboard3'))
+                      .fadeIn(duration: 400.ms, delay: 600.ms)
+                      .scale(
+                        begin: const Offset(0.9, 0.9),
+                        end: const Offset(1.0, 1.0),
+                        duration: 600.ms,
+                        curve: Curves.easeOutBack,
+                        delay: 600.ms,
+                      ),
+                      SizedBox(height: 12),
+                      Text.rich(
+                        TextSpan(
+                          text: 'Already have an account? ',
                           style: TextStyle(
                             fontFamily: 'Geist',
-                            fontSize: 16,
-                            color: primaryColor,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: Color.fromARGB(183, 0, 0, 0),
                           ),
-                        )
-                        .animate(key: ValueKey('skip-$_currentPage'))
-                        .fadeIn(duration: 300.ms, delay: 100.ms),
-                        style: TextButton.styleFrom(  
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size(50, 30),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          children: [
+                            TextSpan(
+                              text: 'Login',
+                              style: TextStyle(
+                                fontFamily: 'Geist',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: primaryColor,
+                                decoration: TextDecoration.underline,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = _completeOnboarding,
+                            ),
+                          ],
                         ),
                       )
-                    : SizedBox(width: 50),
-                ],
+                      .animate(key: ValueKey('login-text-onboard3'))
+                      .fadeIn(duration: 400.ms, delay: 800.ms),
+                    ] else ...[
+                      // Skip button for first two pages
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(width: 50),
+                          TextButton(
+                            onPressed: _skipToEnd,
+                            child: Text(
+                              "Skip",
+                              style: TextStyle(
+                                fontFamily: 'Geist',
+                                fontSize: 16,
+                                color: primaryColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )
+                            .animate(key: ValueKey('skip-$_currentPage'))
+                            .fadeIn(duration: 300.ms, delay: 100.ms),
+                            style: TextButton.styleFrom(  
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size(50, 30),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    
+                    SizedBox(height: 10),
+                  ],
+                ),
               ),
             ),
           ),

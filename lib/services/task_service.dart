@@ -3,10 +3,19 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class TaskService {
-  final String _baseUrl = "https://taskhub-server-yw24.onrender.com/api";
+  final String _baseUrl = "https://taskhub-server1.onrender.com/api";
   final FlutterSecureStorage _storage = FlutterSecureStorage();
+  // Optional: cache last token set by auth provider to avoid storage races
+  static String? _cachedToken;
+
+  // Allow auth layer to prime the token cache
+  static void setCachedToken(String? token) {
+    _cachedToken = token;
+  }
 
   Future<String?> getToken() async {
+    // Prefer cached token if available to avoid initial secure storage delay
+    // if (_cachedToken != null && _cachedToken!.isNotEmpty) return _cachedToken;
     return await _storage.read(key: 'auth_token');
   }
 
@@ -192,6 +201,77 @@ class TaskService {
     }
   }
 
+  Future<Map<String, dynamic>> getTaskerFeed({
+    int page = 1,
+    int limit = 10,
+    bool? biddingOnly,
+    double? budgetMin,
+    double? budgetMax,
+    double? maxDistance,
+  }) async {
+    // Get the token from secure storage
+    final token = await getToken();
+    
+    if (token == null) {
+      throw 'Authentication token not found. Please login first.';
+    }
+
+    try {
+      // Build query parameters
+      final Map<String, String> queryParams = {
+        'page': page.toString(),
+        'limit': limit.toString(),
+      };
+
+      if (biddingOnly != null) {
+        queryParams['biddingOnly'] = biddingOnly.toString();
+      }
+      if (budgetMin != null) {
+        queryParams['budget_min'] = budgetMin.toString();
+      }
+      if (budgetMax != null) {
+        queryParams['budget_max'] = budgetMax.toString();
+      }
+      if (maxDistance != null) {
+        queryParams['maxDistance'] = maxDistance.toString();
+      }
+
+      final uri = Uri.parse('$_baseUrl/tasks/tasker/feed').replace(
+        queryParameters: queryParams,
+      );
+
+      print('Fetching tasker feed from: $uri');
+      final response = await http.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      
+      final responseData = jsonDecode(response.body);
+      
+      if (response.statusCode == 200) {
+        if (responseData['status'] == 'success') {
+          return responseData;
+        }
+        throw 'Failed to fetch tasker feed';
+      } else {
+        String errorMessage = 'Failed to fetch tasker feed';
+        if (responseData['message'] != null) {
+          errorMessage = responseData['message'];
+        }
+        throw errorMessage;
+      }
+    } catch (e) {
+      print('Error fetching tasker feed: $e');
+      throw e.toString();
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getCategories() async {
     try {
       print('Fetching categories from: $_baseUrl/categories');
@@ -225,5 +305,100 @@ class TaskService {
       print('Error fetching categories: $e');
       throw e.toString();
     }
+  }
+
+  // Fetch bids for a specific task (owner view)
+  Future<List<Map<String, dynamic>>> getTaskBids(String taskId) async {
+    final token = await getToken();
+    if (token == null) {
+      throw 'Authentication token not found. Please login first.';
+    }
+
+    final uri = Uri.parse('$_baseUrl/bids/task/$taskId');
+    print('Fetching task bids from: $uri');
+    final response = await http.get(
+      uri,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data is Map<String, dynamic> && data['status'] == 'success' && data['bids'] is List) {
+        return List<Map<String, dynamic>>.from(data['bids']);
+      }
+      throw 'Malformed bids response';
+    } else {
+      final data = jsonDecode(response.body);
+      final msg = (data is Map && data['message'] is String)
+          ? data['message']
+          : 'Failed to fetch bids';
+      throw msg;
+    }
+  }
+
+  // Update task status as the task owner (user)
+  Future<Map<String, dynamic>> updateTaskStatusAsUser({
+    required String taskId,
+    required String status,
+  }) async {
+    final token = await getToken();
+    if (token == null) {
+      throw 'Authentication token not found. Please login first.';
+    }
+
+    final uri = Uri.parse('$_baseUrl/tasks/$taskId/status');
+    final response = await http.patch(
+      uri,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({'status': status}),
+    );
+
+    final data = jsonDecode(response.body);
+    if (response.statusCode == 200 && data is Map<String, dynamic>) {
+      return data;
+    }
+    final msg = (data is Map && data['message'] is String)
+        ? data['message']
+        : 'Failed to update task status';
+    throw msg;
+  }
+
+  // Update task status as the assigned tasker
+  Future<Map<String, dynamic>> updateTaskStatusAsTasker({
+    required String taskId,
+    required String status,
+  }) async {
+    final token = await getToken();
+    if (token == null) {
+      throw 'Authentication token not found. Please login first.';
+    }
+
+    final uri = Uri.parse('$_baseUrl/tasks/$taskId/status/tasker');
+    final response = await http.patch(
+      uri,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({'status': status}),
+    );
+
+    final data = jsonDecode(response.body);
+    if (response.statusCode == 200 && data is Map<String, dynamic>) {
+      return data;
+    }
+    final msg = (data is Map && data['message'] is String)
+        ? data['message']
+        : 'Failed to update task status';
+    throw msg;
   }
 } 

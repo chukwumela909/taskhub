@@ -7,6 +7,7 @@ import 'package:taskhub/screens/auths/signUpUser/signup_user2.dart';
 import 'package:taskhub/screens/auths/sign_in_user.dart';
 import 'package:taskhub/theme/const_value.dart';
 import 'package:taskhub/widgets/custom_loader.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignUpUser extends StatefulWidget {
   const SignUpUser({Key? key}) : super(key: key);
@@ -65,18 +66,16 @@ class _SignUpUserState extends State<SignUpUser> {
                         RichText(
                           text: TextSpan(
                             text: 'Join us ',
-                            style: const TextStyle(
+                            style: GoogleFonts.bricolageGrotesque(
                               fontSize: 28,
-                              fontFamily: 'Geist',
                               fontWeight: FontWeight.w800,
                               color: Colors.black,
                             ),
                             children: [
                               TextSpan(
                                 text: 'Today !',
-                                style: TextStyle(
+                                style: GoogleFonts.bricolageGrotesque(
                                   fontSize: 28,
-                                  fontFamily: 'Geist',
                                   fontWeight: FontWeight.w800,
                                   color: primaryColor,
                                 ),
@@ -89,10 +88,8 @@ class _SignUpUserState extends State<SignUpUser> {
                         Text(
                           "Be part of our platform today,\nsee what's possible",
                           textAlign: TextAlign.start,
-                          style: TextStyle(
+                          style: GoogleFonts.bricolageGrotesque(
                             fontSize: 16,
-                            
-                            fontFamily: 'Geist',
                             color: black.withOpacity(0.4),
                           ),
                         ),
@@ -119,9 +116,8 @@ class _SignUpUserState extends State<SignUpUser> {
                       const SizedBox(width: 8),
                       Text(
                         "Basic Credentials",
-                        style: TextStyle(
+                        style: GoogleFonts.bricolageGrotesque(
                           fontSize: 16,
-                          fontFamily: 'Geist',
                           fontWeight: FontWeight.w600,
                           color: primaryColor,
                         ),
@@ -129,10 +125,9 @@ class _SignUpUserState extends State<SignUpUser> {
                       Spacer(),
                       Text(
                         "1/3",
-                        style: TextStyle(
+                        style: GoogleFonts.bricolageGrotesque(
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
-                          fontFamily: 'Geist',
                           color: primaryColor,
                         ),
                       ),
@@ -144,11 +139,10 @@ class _SignUpUserState extends State<SignUpUser> {
                 // -- Full Name field --
                 Text(
                   "Full Name",
-                  style: TextStyle(
+                  style: GoogleFonts.bricolageGrotesque(
                       fontSize: 16,
-                      fontFamily: 'Geist',
-                      color: black.withOpacity(0.5),
-                      fontWeight: FontWeight.w600),
+                      fontWeight: FontWeight.w600,
+                      color: black.withOpacity(0.5)),
                 ),
                 const SizedBox(height: 8),
                 CustomTextFormField(
@@ -171,11 +165,10 @@ class _SignUpUserState extends State<SignUpUser> {
                 // -- Email Address field --
                 Text(
                   "Email Address",
-                  style: TextStyle(
+                  style: GoogleFonts.bricolageGrotesque(
                       fontSize: 16,
-                      fontFamily: 'Geist',
-                      color: black.withOpacity(0.5),
-                      fontWeight: FontWeight.w600),
+                      fontWeight: FontWeight.w600,
+                      color: black.withOpacity(0.5)),
                 ),
                 const SizedBox(height: 8),
                 CustomTextFormField(
@@ -185,7 +178,8 @@ class _SignUpUserState extends State<SignUpUser> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email address';
                     }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                    final trimmed = value.trim();
+                    if (!RegExp(r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,}$').hasMatch(trimmed)) {
                       return 'Please enter a valid email address';
                     }
                     return null;
@@ -201,11 +195,10 @@ class _SignUpUserState extends State<SignUpUser> {
                 // -- Phone Number field --
                 Text(
                   "Phone Number",
-                  style: TextStyle(
+                  style: GoogleFonts.bricolageGrotesque(
                       fontSize: 16,
-                      fontFamily: 'Geist',
-                      color: black.withOpacity(0.5),
-                      fontWeight: FontWeight.w600),
+                      fontWeight: FontWeight.w600,
+                      color: black.withOpacity(0.5)),
                 ),
                 const SizedBox(height: 8),
                 CustomTextFormField(
@@ -228,11 +221,10 @@ class _SignUpUserState extends State<SignUpUser> {
                 // -- Date of Birth field --
                 Text(
                   "Date of Birth",
-                  style: TextStyle(
+                  style: GoogleFonts.bricolageGrotesque(
                       fontSize: 16,
-                      fontFamily: 'Geist',
-                      color: black.withOpacity(0.5),
-                      fontWeight: FontWeight.w600),
+                      fontWeight: FontWeight.w600,
+                      color: black.withOpacity(0.5)),
                 ),
                 const SizedBox(height: 8),
                 CustomTextFormField(
@@ -314,7 +306,7 @@ class _SignUpUserState extends State<SignUpUser> {
                     children: [
                       Text(
                         "Have an account? ",
-                        style: TextStyle(
+                        style: GoogleFonts.bricolageGrotesque(
                           fontSize: 16,
                           color: Colors.black.withOpacity(0.7),
                           fontWeight: FontWeight.w500,
@@ -327,7 +319,7 @@ class _SignUpUserState extends State<SignUpUser> {
                         },
                         child: Text(
                           "Login",
-                          style: TextStyle(
+                          style: GoogleFonts.bricolageGrotesque(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: primaryColor,

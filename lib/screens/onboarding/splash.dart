@@ -18,59 +18,82 @@ class Splash extends StatefulWidget {
 }
 
 class _SplashState extends State<Splash> {
+  // Prevent duplicate navigations and handle hot-reload resiliency
+  bool _navigated = false;
+  bool _checking = false;
+
   @override
   void initState() {
     super.initState();
     _checkAuthAndNavigate();
   }
+
+  // Re-run the navigation check on hot reload to avoid being stuck on splash
+  @override
+  void reassemble() {
+    super.reassemble();
+    if (!_navigated && !_checking) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_navigated && !_checking) {
+          _checkAuthAndNavigate();
+        }
+      });
+    }
+  }
   
   Future<void> _checkAuthAndNavigate() async {
-    // Add a delay for splash screen display
-    await Future.delayed(const Duration(seconds: 2));
-    
-    if (!mounted) return;
-    
-    // Check location services first
-    await _checkLocationServices();
-    
-    if (!mounted) return;
-    
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
-    // Explicitly check authentication status and wait for completion
-    await authProvider.checkAuthenticationStatus();
-    
-    if (!mounted) return;
-    
-    if (authProvider.isAuthenticated) {
-      // User is authenticated, navigate to appropriate home screen
-      if (authProvider.isTasker) {
-        // Navigate to tasker home
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const TaskerHomeScreen()));
+    if (_navigated || _checking) return;
+    _checking = true;
+    try {
+      // Minimal splash delay for brand visibility
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      if (!mounted || _navigated) return;
+
+      // Don't block navigation on location dialog; handle later in-app
+      // _checkLocationServices(); // intentionally not awaited to avoid splash lockups
+
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.checkAuthenticationStatus();
+
+      if (!mounted || _navigated) return;
+
+      if (authProvider.isAuthenticated) {
+        // Navigate to appropriate home screen
+        if (authProvider.isTasker) {
+          _navigateOnce(const TaskerHomeScreen());
+        } else {
+          _navigateOnce(const HomeScreen());
+        }
       } else {
-        // Navigate to regular user home
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+        // Check onboarding status
+        final isOnboardingCompleted = await PreferencesService.isOnboardingCompleted();
+        if (!mounted || _navigated) return;
+
+        if (isOnboardingCompleted) {
+          _navigateOnce(const StarterPage());
+        } else {
+          _navigateOnceWithFade(const OnboardingWrapper());
+        }
       }
-    } else {
-      // User is not authenticated, check if onboarding completed
-      final isOnboardingCompleted = await PreferencesService.isOnboardingCompleted();
-      
-      if (!mounted) return;
-      
-      if (isOnboardingCompleted) {
-        // User has seen onboarding but is not authenticated, go to login flow
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const StarterPage()));
-      } else {
-        // First time user, show onboarding with fade transition
-        Navigator.pushReplacement(
-          context,
-          _createFadeRoute(const OnboardingWrapper()),
-        );
-      }
+    } finally {
+      _checking = false;
     }
+  }
+
+  void _navigateOnce(Widget page) {
+    if (_navigated || !mounted) return;
+    _navigated = true;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
+  }
+
+  void _navigateOnceWithFade(Widget page) {
+    if (_navigated || !mounted) return;
+    _navigated = true;
+    Navigator.pushReplacement(context, _createFadeRoute(page));
   }
   
   // Create a custom fade route for smooth transitions
@@ -93,7 +116,7 @@ class _SplashState extends State<Splash> {
       },
     );
   }
-
+  
   // Check if location services are enabled and show dialog if they're not
   Future<void> _checkLocationServices() async {
     final locationProvider = Provider.of<LocationProvider>(context, listen: false);
@@ -103,16 +126,19 @@ class _SplashState extends State<Splash> {
     
     // If location services are disabled, show dialog
     if (locationProvider.isLocationServiceDisabled && mounted) {
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => LocationServicesDialog(
-          onLocationEnabled: () {
-            // This will be called after the user returns from location settings
-            // The LocationServicesDialog already handles re-checking location
-          },
-        ),
-      );
+      // Schedule dialog post-frame so it doesn't compete with navigation
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => LocationServicesDialog(
+            onLocationEnabled: () {
+              // The LocationServicesDialog handles re-checking status
+            },
+          ),
+        );
+      });
     }
   }
   

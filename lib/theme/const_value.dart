@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 Color primaryColor = Color(0xff673AB7);
 Color taskerPrimaryColor = Color.fromARGB(255, 142, 79, 249);
@@ -99,7 +100,7 @@ class PrimaryButton extends StatelessWidget {
     this.fontSize = 18,
     this.fontWeight = FontWeight.bold,
     this.borderRadius = 8.0,
-    this.padding = const EdgeInsets.symmetric(vertical: 15),
+    this.padding = const EdgeInsets.symmetric(vertical: 10),
   }) : super(key: key);
 
   @override
@@ -117,9 +118,8 @@ class PrimaryButton extends StatelessWidget {
         onPressed: onPressed,
         child: Text(
           label,
-          style: TextStyle(
+          style: GoogleFonts.bricolageGrotesque(
             fontSize: fontSize,
-            fontFamily: 'Geist',
             fontWeight: fontWeight,
             color: Colors.white,
           ),

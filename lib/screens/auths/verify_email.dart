@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:taskhub/screens/auths/starterPageSignin.dart';
 import 'package:taskhub/theme/const_value.dart';
 import 'package:taskhub/services/auth_service.dart';
 import 'package:taskhub/screens/auths/sign_in_user.dart';
 import 'package:taskhub/screens/auths/sign_in_tasker.dart';
-import 'package:taskhub/screens/tasker/category_selection.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   final String email;
@@ -409,26 +409,23 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       // Navigate to appropriate screen based on user type
       await Future.delayed(Duration(milliseconds: 500)); // Brief delay to show success message
       
+      // After verification, send all to appropriate sign-in screen
       if (widget.userType == "tasker") {
-        // For taskers, go to category selection screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => const CategorySelectionScreen(isFromAuth: true),
-          ),
+          MaterialPageRoute(builder: (context) => const StarterPageSignin()),
         );
       } else {
-        // For regular users, go to sign in screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => SignInUser()),
+          MaterialPageRoute(builder: (context) => StarterPageSignin()),
         );
       }
         
     } catch (e) {
       setState(() {
         _isVerifying = false;
-        _errorMessage = e.toString();
+        _errorMessage = "Something went wrong. Please try again.";
       });
     }
   }
